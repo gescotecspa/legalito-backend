@@ -8,7 +8,7 @@ class User(db.Model):
     first_name = db.Column(db.String(100), nullable=False)
     last_name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(150), nullable=False)
-    password_hash = db.Column(db.String(250), nullable=False)
+    password_hash = db.Column(db.String(255), nullable=False)
     phone_number = db.Column(db.String(20), nullable=True)
     birth_date = db.Column(db.DateTime, default=datetime.utcnow)
     image_url = db.Column(db.String(200), nullable=True)

@@ -8,3 +8,4 @@ from .parameter import Parameter
 from .user import User
 from .rol import Rol
 from .favorite import Favorite
+from .event import Event

@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify,abort
 from app.event_creator import create_and_send_ics_file
+from app.services.event_service import list_events_by_user,EventNotFoundException
 
 events_bp = Blueprint('events', __name__)
 
@@ -25,19 +26,19 @@ def create_and_send_event():
     return jsonify({"result": result})
 
 
-@events_bp.route('/cases/user', methods=['POST'])
+@events_bp.route('/byuser', methods=['POST'])
 def list_events_by_user():
     data = request.get_json()
     user = data.get('user')
 
-    #try:
-    abort(501)
-        #data = list_assistants_favorite(user)
-        #return jsonify([f.serialize() for f in data]), 200
-    #except AssistantNotFoundException as e:
-    #    return jsonify({"error": str(e)}), 404
-    #except Exception as e:
-    #    return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
+    try:
+    
+        data = list_events_by_user(user)
+        return jsonify([f.serialize() for f in data]), 200
+    except EventNotFoundException as e:
+        return jsonify({"error": str(e)}), 404
+    except Exception as e:
+        return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
     
 @events_bp.route('/cases/filter/', methods=['GET'])
 def get(id):

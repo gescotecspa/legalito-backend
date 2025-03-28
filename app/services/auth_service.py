@@ -9,15 +9,15 @@ class InvalidCredentialsException(Exception):
 def login_user(email, password):
     user = User.query.filter_by(email=email).first()
 
-    if not user or not bcrypt.check_password_hash(user.password, password):
+    if not user or not bcrypt.check_password_hash(user.password_hash, password):
         raise InvalidCredentialsException("Email o contraseña incorrectos")
 
-    token = create_access_token(identity=user.id)
+    token = create_access_token(identity=user.user)
     
     return {
         "access_token": token,
         "user": {
-            "id": user.id,
+            "id": user.user,
             "email": user.email,
             "nombre": user.first_name,  # Ajustá según tus campos
         }
