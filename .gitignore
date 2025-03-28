@@ -1,0 +1,48 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Entorno virtual
+venv/
+env/
+.venv/
+.env/
+.Python
+
+# Archivos de configuración de entorno
+*.env
+.env.*
+
+# Logs y bases de datos temporales
+*.log
+*.sqlite3
+*.db
+
+# Pytest
+.pytest_cache/
+
+# mypy
+.mypy_cache/
+
+# VSCode
+.vscode/
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+
+# Distribución / empaquetado
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Coverage reports
+htmlcov/
+.coverage
+.tox/
+.nox/
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db

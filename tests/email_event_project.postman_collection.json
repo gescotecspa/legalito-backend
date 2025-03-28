@@ -1,0 +1,122 @@
+{
+    "info": {
+        "_postman_id": "b8d2c1c1-4b5f-4c27-9f0c-2a1f3e94e8af",
+        "name": "Email Event Project API Tests",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Health Check",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "http://localhost:5000/api/health",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "5000",
+                    "path": [
+                        "api",
+                        "health"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "List Email Accounts",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "http://localhost:5000/api/email-accounts",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "5000",
+                    "path": [
+                        "api",
+                        "email-accounts"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "Add Email Account",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"provider\": \"Gmail\",\n  \"imap_server\": \"imap.gmail.com\",\n  \"email_address\": \"tuemail@gmail.com\",\n  \"password\": \"tu_contraseña_o_token\"\n}"
+                },
+                "url": {
+                    "raw": "http://localhost:5000/api/email-accounts",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "5000",
+                    "path": [
+                        "api",
+                        "email-accounts"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "Read Mails",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "http://localhost:5000/api/read-mails",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "5000",
+                    "path": [
+                        "api",
+                        "read-mails"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "Create and Send Event",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"title\": \"Reunión de prueba\",\n  \"date\": \"20/03/2025\",\n  \"time\": \"15:30\",\n  \"location\": \"Oficina Central\",\n  \"recipient_email\": \"tucuenta@dominio.com\",\n  \"description\": \"Reunión de coordinación del proyecto.\"\n}"
+                },
+                "url": {
+                    "raw": "http://localhost:5000/api/create-and-send-event",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "5000",
+                    "path": [
+                        "api",
+                        "create-and-send-event"
+                    ]
+                }
+            }
+        }
+    ]
+}
