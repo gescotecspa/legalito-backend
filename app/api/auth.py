@@ -10,6 +10,7 @@ def login():
     email = data.get('email')
     password = data.get('password')
 
+    print (email)
     if not email or not password:
         return jsonify({"error": "Email y contraseña son obligatorios"}), 400
 
