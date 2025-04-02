@@ -11,6 +11,10 @@ def create_notification(data):
         if not data.get(field):
             raise ValueError(f"'{field}' is a required field.")
 
+    print(data)
+    print(type(data.get('received_date')))
+    print(type(data.get('marked_as_invitation')))
+
     notification = Notification(
         folio_id=data.get('folio_id'),
         rit=data.get('rit'),
@@ -20,13 +24,19 @@ def create_notification(data):
         body=data.get('body'),
         processed_at=datetime.utcnow(),
         marked_as_invitation=data.get('marked_as_invitation', False),
-        status=data.get('status', 'pending')
+        status=data.get('status', 'pending'),
+        user=data.get('user')
     )
-
-    db.session.add(notification)
-    db.session.commit()
-
+    print(notification)
+    try:
+        db.session.add(notification)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        print(e)
+        return False
     return notification
+    
 
 def list_notifications():
     return Notification.query.all()
@@ -38,3 +48,6 @@ def delete_notification(notification_id):
 
     db.session.delete(notification)
     db.session.commit()
+
+def list_notifications_by_user(user):
+    return Notification.query.filter_by(uer = user).order_by(Notification.received_date.asc()).all()

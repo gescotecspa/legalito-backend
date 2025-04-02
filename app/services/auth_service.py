@@ -17,8 +17,9 @@ def login_user(email, password):
     return {
         "access_token": token,
         "user": {
-            "id": user.user,
+            "user": user.user,
             "email": user.email,
-            "nombre": user.first_name,  # Ajustá según tus campos
+            "first_name": user.first_name,
+            "last_name":user.last_name,  # Ajustá según tus campos
         }
     }

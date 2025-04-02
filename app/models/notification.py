@@ -14,6 +14,7 @@ class Notification(db.Model):
     processed_at = db.Column(db.DateTime, default=datetime.utcnow)
     marked_as_invitation = db.Column(db.Boolean, default=False)
     status = db.Column(db.String(50), default='pending')
+    user = db.Column(db.String(150), nullable=False)
 
     def serialize(self):
         return {
@@ -26,5 +27,6 @@ class Notification(db.Model):
             'body': self.body,
             'processed_at': self.processed_at.isoformat(),
             'marked_as_invitation': self.marked_as_invitation,
-            'status': self.status
+            'status': self.status,
+            'user':self.user
         }

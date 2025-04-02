@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from app.services.notification_service import create_notification, list_notifications, delete_notification, NotificationNotFoundException
+from app.services.notification_service import create_notification, list_notifications, delete_notification, list_notifications_by_user,NotificationNotFoundException
 
 notifications_bp = Blueprint('notifications', __name__)
 
@@ -14,14 +14,30 @@ def add_notification():
     except Exception as e:
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
-@notifications_bp.route('/notifications', methods=['GET'])
-def get_notifications():
+@notifications_bp.route('/notifications/list', methods=['GET'])
+def list_notifications():
     try:
         notifications = list_notifications()
         return jsonify([n.serialize() for n in notifications]), 200
     except Exception as e:
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
+@notifications_bp.route('/notifications', methods=['GET'])
+def get_notifications(id):
+    try:
+        notifications = list_notifications()
+        return jsonify([n.serialize() for n in notifications]), 200
+    except Exception as e:
+        return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
+    
+@notifications_bp.route('/notifications/byUser/<string:user>', methods=['GET'])
+def list_notifications_by_user(user):
+    try:
+        notifications = list_notifications_by_user(user)
+        return jsonify([n.serialize() for n in notifications]), 200
+    except Exception as e:
+        return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
+    
 @notifications_bp.route('/notifications/<int:notification_id>', methods=['DELETE'])
 def remove_notification(notification_id):
     try:
