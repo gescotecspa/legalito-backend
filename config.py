@@ -20,3 +20,8 @@ class Config:
 
     # Mail remitente válido para filtrar correos a procesar
     ALLOWED_SENDER = os.getenv("ALLOWED_SENDER")
+
+ # Configuración de Mailjet
+    MAILJET_API_KEY = os.getenv("MAILJET_API_KEY")
+    MAILJET_API_SECRET = os.getenv("MAILJET_API_SECRET")
+    MAILJET_SENDER_EMAIL = os.getenv("MAILJET_SENDER_EMAIL")
