@@ -1,5 +1,5 @@
 from .. import db
-from datetime import datetime
+from datetime import datetime, timedelta
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -19,7 +19,15 @@ class User(db.Model):
     suspension_reason = db.Column(db.String(100), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow)
-
+    reset_code = db.Column(db.String(6), nullable=True)  
+    reset_code_expiration = db.Column(db.DateTime, nullable=True)
+    
+    def set_reset_code(self, code):
+        """Guarda el código de recuperación con una expiración de 10 minutos."""
+        self.reset_code = code
+        self.reset_code_expiration = datetime.utcnow() + timedelta(minutes=15)
+        db.session.commit()
+        
     def serialize(self):
         return {
             'user': self.user,
@@ -36,5 +44,7 @@ class User(db.Model):
             'suspended_at': self.suspended_at.isoformat(),
             'suspension_reason': self.suspension_reason,
             'created_at': self.created_at.isoformat(),
-            'updated_at': self.updated_at.isoformat()
+            'updated_at': self.updated_at.isoformat(),
+            'reset_code': self.reset_code,
+            'reset_code_expiration': self.reset_code_expiration.isoformat() if self.reset_code_expiration else None
         }
