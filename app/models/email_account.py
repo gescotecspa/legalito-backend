@@ -9,7 +9,9 @@ class EmailAccount(db.Model):
     email_address = db.Column(db.String(150), nullable=False, unique=True)
     password = db.Column(db.String(255), nullable=False)  # Guardar token o contraseña cifrada
     active = db.Column(db.Boolean, default=True)
-    user = db.Column(db.String(150), nullable=False)
+    user = db.Column(db.String(150), db.ForeignKey('users.user'), nullable=False)
+    user_rel = db.relationship('User', back_populates='email_accounts')
+    
 
     def serialize(self):
         return {
