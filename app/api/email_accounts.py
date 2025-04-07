@@ -7,8 +7,13 @@ email_accounts_bp = Blueprint('email_accounts', __name__)
 @email_accounts_bp.route('/email-accounts', methods=['POST'])
 def add():
     data = request.json
-    account = add_email_account(data)
-    return jsonify({"message": "Cuenta agregada", "account": account.serialize()}), 201
+    try:
+        account = add_email_account(data)
+        return jsonify({"message": "Account successfully added", "account": account.serialize()}), 201
+    except ValueError as ve:
+        return jsonify({"error": str(ve)}), 400
+    except Exception as e:
+        return jsonify({"error": "Unexpected error: " + str(e)}), 500
 
 @email_accounts_bp.route('/email-accounts', methods=['GET'])
 def list_email_acc():
@@ -31,9 +36,13 @@ def delete():
     user = data.get('user')
 
     try:
-        delete_email_accounts(email,user)
-       
-        return jsonify(True), 200
+        success = delete_email_accounts(email, user)
+
+        if not success:
+            return jsonify({"error": "Account not found or could not be deleted"}), 404
+
+        return jsonify({"message": "Account successfully deleted"}), 200
+
     except Exception as e:
         print(e)
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
