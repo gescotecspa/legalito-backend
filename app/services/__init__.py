@@ -1,6 +1,6 @@
 from .case_service import create_case, list_cases, delete_case
 from .folio_service import create_folio,list_folios,delete_folio
-from .notification_service import create_notification,list_notifications,delete_notification,list_notifications_by_user
+from .notification_service import create_notification,list_notifications,delete_notification,get_notifications_by_user,get_notification
 from .parameter_service import list_parameters,list_parameters_by_parent
 from .rol_service import list_roles
 from .assistant_service import list_assistants,list_assistants_by_filter,add_favorite_assitant,get_assistant,delete_favorite_assistant,add_favorite_assitant

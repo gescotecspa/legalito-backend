@@ -5,6 +5,10 @@ from datetime import datetime
 class NotificationNotFoundException(Exception):
     pass
 
+def get_notification(_id):
+    result = Notification.query.filter_by(id=_id).first()
+    return result
+
 def create_notification(data):
     required_fields = ['subject', 'sender', 'received_date']
     for field in required_fields:
@@ -37,7 +41,6 @@ def create_notification(data):
         return False
     return notification
     
-
 def list_notifications():
     return Notification.query.all()
 
@@ -49,5 +52,5 @@ def delete_notification(notification_id):
     db.session.delete(notification)
     db.session.commit()
 
-def list_notifications_by_user(user):
-    return Notification.query.filter_by(uer = user).order_by(Notification.received_date.asc()).all()
+def get_notifications_by_user(user):
+    return Notification.query.filter_by(user = user).order_by(Notification.received_date.asc()).all()

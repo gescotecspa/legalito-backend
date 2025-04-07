@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from app.services.notification_service import create_notification, list_notifications, delete_notification, list_notifications_by_user,NotificationNotFoundException
+from app.services.notification_service import get_notification,create_notification, list_notifications, delete_notification, get_notifications_by_user,NotificationNotFoundException
 
 notifications_bp = Blueprint('notifications', __name__)
 
@@ -22,19 +22,27 @@ def list_notifications():
     except Exception as e:
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
-@notifications_bp.route('/notifications', methods=['GET'])
-def get_notifications(id):
+@notifications_bp.route('/notifications/<int:id>', methods=['GET'])
+def get_notification_by_id(id):
     try:
-        notifications = list_notifications()
-        return jsonify([n.serialize() for n in notifications]), 200
+    
+        notification = get_notification(id)
+
+        if not notification:
+            return jsonify({"error": "Notification not found"}), 404
+    
+        return jsonify(notification.serialize()), 200
     except Exception as e:
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
     
-@notifications_bp.route('/notifications/byUser/<string:user>', methods=['GET'])
-def list_notifications_by_user(user):
+@notifications_bp.route('/notifications/byUser', methods=['POST'])
+def list_notifications_by_user():
+    data = request.get_json()
+    user = data.get('user')
+    
     try:
-        notifications = list_notifications_by_user(user)
-        return jsonify([n.serialize() for n in notifications]), 200
+        data = get_notifications_by_user(user)
+        return jsonify([n.serialize() for n in data]), 200
     except Exception as e:
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
     
