@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+from datetime import timedelta
 
 load_dotenv()
 
@@ -25,3 +26,5 @@ class Config:
     MAILJET_API_KEY = os.getenv("MAILJET_API_KEY")
     MAILJET_API_SECRET = os.getenv("MAILJET_API_SECRET")
     MAILJET_SENDER_EMAIL = os.getenv("MAILJET_SENDER_EMAIL")
+    
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(seconds=int(os.getenv("JWT_ACCESS_TOKEN_EXPIRES", 10800)))

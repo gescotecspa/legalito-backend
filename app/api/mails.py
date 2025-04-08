@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request
+from flask_jwt_extended import jwt_required
 from app.models import EmailAccount
 from app.imap_reader import read_unread_emails_for_account
 from app.info_extractor import extract_event_info
@@ -10,6 +11,7 @@ from datetime import datetime
 mails_bp = Blueprint('mails', __name__)
 
 @mails_bp.route('/read-mails', methods=['POST'])
+@jwt_required()
 def read_mails():
     data = request.get_json()
     email_to_check = data.get('email')

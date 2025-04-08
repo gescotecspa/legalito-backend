@@ -1,9 +1,11 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required
 from app.services.folio_service import create_folio, list_folios, delete_folio, FolioNotFoundException
 
 folios_bp = Blueprint('folios', __name__)
 
 @folios_bp.route('/folios', methods=['POST'])
+@jwt_required()
 def add_folio():
     data = request.get_json()
     try:
@@ -15,6 +17,7 @@ def add_folio():
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
 @folios_bp.route('/folios', methods=['GET'])
+@jwt_required()
 def get_folios():
     try:
         folios = list_folios()
@@ -23,6 +26,7 @@ def get_folios():
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
 @folios_bp.route('/folios/<int:folio_id>', methods=['DELETE'])
+@jwt_required()
 def remove_folio(folio_id):
     try:
         delete_folio(folio_id)

@@ -1,9 +1,11 @@
 from flask import Blueprint, request, jsonify,abort
+from flask_jwt_extended import get_jwt_identity, jwt_required
 from app.services.assistant_service import list_assistants,list_assistants_by_filter,add_favorite_assitant,list_assistants_favorite,delete_favorite_assistant,get_assistant, AssistantNotFoundException
 
 assistants_bp = Blueprint('assistants', __name__)
 
 @assistants_bp.route('/assistants', methods=['GET'])
+@jwt_required()
 def list_all_assistants():
     try:
         result = list_assistants()
@@ -12,6 +14,7 @@ def list_all_assistants():
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
     
 @assistants_bp.route('/assistants/filter/<int:typeId>/<int:regionId>', methods=['GET'])
+@jwt_required()
 def list_by_filter(typeId,regionId):
     try:
         data = list_assistants_by_filter(typeId,regionId)
@@ -23,9 +26,10 @@ def list_by_filter(typeId,regionId):
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
     
 @assistants_bp.route('/assistants/favorites', methods=['POST'])
+@jwt_required()
 def get_favorite():
     data = request.get_json()
-    user = data.get('user')
+    user = get_jwt_identity()
 
     try:
         data = list_assistants_favorite(user)
@@ -36,11 +40,12 @@ def get_favorite():
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
     
 @assistants_bp.route('/assistants/favorite/add', methods=['POST'])
+@jwt_required()
 def add_favorite ():
     
     data = request.get_json()
     assistantId = data.get('assistantId')
-    user = data.get('user')
+    user = get_jwt_identity()
 
     try:
         print(user)
@@ -51,11 +56,12 @@ def add_favorite ():
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
     
 @assistants_bp.route('/assistants/favorite/delete', methods=['DELETE'])
+@jwt_required()
 def delete_favorite ():
     
     data = request.get_json()
     assistantId = data.get('assistantId')
-    user = data.get('user')
+    user = get_jwt_identity()
 
     try:
         delete_favorite_assistant(assistantId,user)
@@ -66,6 +72,7 @@ def delete_favorite ():
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
     
 @assistants_bp.route('/assistants/profile/<int:id>', methods=['GET'])
+@jwt_required()
 def get_assistant_by_id(id):
     assistant = get_assistant(id)
     

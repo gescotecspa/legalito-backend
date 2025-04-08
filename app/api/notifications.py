@@ -1,9 +1,11 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import get_jwt_identity, jwt_required
 from app.services.notification_service import get_notification,create_notification, list_notifications, delete_notification, get_notifications_by_user,NotificationNotFoundException
 
 notifications_bp = Blueprint('notifications', __name__)
 
 @notifications_bp.route('/notifications', methods=['POST'])
+@jwt_required()
 def add_notification():
     data = request.get_json()
     try:
@@ -15,6 +17,7 @@ def add_notification():
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
 @notifications_bp.route('/notifications/list', methods=['GET'])
+@jwt_required()
 def list_notifications():
     try:
         notifications = list_notifications()
@@ -23,6 +26,7 @@ def list_notifications():
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
 @notifications_bp.route('/notifications/<int:id>', methods=['GET'])
+@jwt_required()
 def get_notification_by_id(id):
     try:
     
@@ -36,9 +40,11 @@ def get_notification_by_id(id):
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
     
 @notifications_bp.route('/notifications/byUser', methods=['POST'])
+@jwt_required()
 def list_notifications_by_user():
+    current_user = get_jwt_identity()
     data = request.get_json()
-    user = data.get('user')
+    user = current_user
     
     try:
         data = get_notifications_by_user(user)
@@ -47,6 +53,7 @@ def list_notifications_by_user():
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
     
 @notifications_bp.route('/notifications/<int:notification_id>', methods=['DELETE'])
+@jwt_required()
 def remove_notification(notification_id):
     try:
         delete_notification(notification_id)
