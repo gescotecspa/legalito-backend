@@ -30,9 +30,9 @@ def list_email_accounts():
     accounts = EmailAccount.query.all()
     return accounts
 
-def get_email_account(user):
-    account = EmailAccount.query.filter_by(user=user).first()
-    return account
+def get_email_accounts_by_user(user):
+    accounts = EmailAccount.query.filter_by(user=user).all()
+    return accounts
 
 def delete_email_accounts(email, user):
     try:
@@ -48,3 +48,34 @@ def delete_email_accounts(email, user):
         db.session.rollback()
         print(f"Error eliminando la cuenta: {e}")
         return False
+    
+def toggle_email_account_status(email, user):
+    try:
+        account = EmailAccount.query.filter_by(email_address=email, user=user).first()
+        if not account:
+            return False
+
+        account.active = not account.active 
+        db.session.commit()
+        return account.active
+
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error cambiando el estado de la cuenta: {e}")
+        return None
+    
+def get_email_account_by_id(account_id):
+    return EmailAccount.query.get(account_id)
+
+def update_email_account(account_id, data):
+    account = EmailAccount.query.get(account_id)
+    if not account:
+        return None
+
+    account.provider = data.get('provider', account.provider)
+    account.imap_server = data.get('imap_server', account.imap_server)
+    account.email_address = data.get('email_address', account.email_address)
+    account.password = data.get('password', account.password)
+
+    db.session.commit()
+    return account

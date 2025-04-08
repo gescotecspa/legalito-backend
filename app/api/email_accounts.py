@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, abort
 from app import db
-from app.services.email_account_service import add_email_account,list_email_accounts,delete_email_accounts,get_email_account
+from app.services.email_account_service import add_email_account, get_email_account_by_id, get_email_accounts_by_user,list_email_accounts,delete_email_accounts, toggle_email_account_status, update_email_account
 
 email_accounts_bp = Blueprint('email_accounts', __name__)
 
@@ -22,12 +22,9 @@ def list_email_acc():
 
 @email_accounts_bp.route('/email-accounts/byuser/<string:user>', methods=['GET'])
 def get_email_by_user(user):
-    account = get_email_account(user)
-    
-    if not account:
-        return jsonify({"error": "Account not found"}), 404
-    
-    return jsonify(account.serialize()), 200
+    accounts = get_email_accounts_by_user(user)
+    # Siempre devolvé una lista, aunque esté vacía
+    return jsonify([a.serialize() for a in accounts]), 200
 
 @email_accounts_bp.route('/email-accounts', methods=['DELETE'])
 def delete():
@@ -50,3 +47,46 @@ def delete():
 @email_accounts_bp.route('/email-accounts', methods=['PUT'])
 def update():
     abort(501)
+    
+@email_accounts_bp.route('/email-accounts/toggle-status', methods=['PUT'])
+def toggle_status():
+    data = request.get_json()
+    email = data.get('email')
+    user = data.get('user')
+
+    try:
+        result = toggle_email_account_status(email, user)
+
+        if result is None:
+            return jsonify({"error": "Account not found or could not toggle status"}), 404
+
+        return jsonify({
+            "message": f"Account status changed successfully. Now {'active' if result else 'inactive'}",
+            "active": result
+        }), 200
+
+    except Exception as e:
+        print(e)
+        return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
+    
+
+@email_accounts_bp.route('/email-accounts/<int:id>', methods=['GET'])
+def get_account_by_id(id):
+    account = get_email_account_by_id(id)
+    if account is None:
+        return jsonify({"error": "Account not found"}), 404
+    return jsonify(account.serialize()), 200
+
+
+@email_accounts_bp.route('/email-accounts/<int:id>', methods=['PUT'])
+def update_account(id):
+    data = request.get_json()
+    account = update_email_account(id, data)
+
+    if account is None:
+        return jsonify({"error": "Account not found"}), 404
+
+    return jsonify({
+        "message": "Account successfully updated",
+        "account": account.serialize()
+    }), 200  

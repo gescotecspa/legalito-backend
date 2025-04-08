@@ -6,6 +6,6 @@ from .rol_service import list_roles
 from .assistant_service import list_assistants,list_assistants_by_filter,add_favorite_assitant,get_assistant,delete_favorite_assistant,add_favorite_assitant
 from .courthouse_service import list_courthouses
 from .user_service import list_users,register_user
-from .email_account_service import add_email_account,list_email_accounts,get_email_account,delete_email_accounts
+from .email_account_service import add_email_account,list_email_accounts,get_email_accounts_by_user,delete_email_accounts, get_email_account_by_id, update_email_account
 from .auth_service import login_user
 from .event_service import add_event,delete_event,update_event,list_events_by_user,get_event
