@@ -4,6 +4,8 @@ from flask import current_app
 from app import db
 from app.models import User
 from app.extensions import bcrypt
+from app.utils.image_handler import save_base64_image
+from datetime import datetime, timezone
 
 class UserAlreadyExistsException(Exception):
     pass
@@ -73,3 +75,26 @@ def reset_password(token, new_password):
         return False, "Token expirado"
     except jwt.InvalidTokenError:
         return False, "Token inválido"
+    
+    
+def update_user(user_id, data):
+    user = User.query.get(user_id)
+    if not user:
+        raise UserNotFoundException()
+
+    allowed_fields = ['first_name', 'last_name', 'phone_number', 'birth_date']
+    
+    for key in allowed_fields:
+        if key in data:
+            if key == 'birth_date':
+                user.birth_date = datetime.fromisoformat(data[key])
+            else:
+                setattr(user, key, data[key])
+
+    if 'image_base64' in data and data['image_base64']:
+        image_url = save_base64_image(data['image_base64'], user.user, user.image_url)
+        user.image_url = image_url
+
+    user.updated_at = datetime.now(timezone.utc)
+    db.session.commit()
+    return user

@@ -10,12 +10,12 @@ class User(db.Model):
     email = db.Column(db.String(150), nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
     phone_number = db.Column(db.String(20), nullable=True)
-    birth_date = db.Column(db.DateTime, default=datetime.utcnow)
+    birth_date = db.Column(db.DateTime, nullable=True)
     image_url = db.Column(db.String(200), nullable=True)
     status = db.Column(db.String(20), nullable=True)
     activation_date = db.Column(db.DateTime, default=datetime.utcnow)
-    last_login = db.Column(db.DateTime, default=datetime.utcnow)
-    suspended_at = db.Column(db.DateTime, default=datetime.utcnow)
+    last_login = db.Column(db.DateTime, nullable=True)
+    suspended_at = db.Column(db.DateTime, nullable=True)
     suspension_reason = db.Column(db.String(100), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -37,12 +37,12 @@ class User(db.Model):
             'email': self.email,
             'password_hash': self.password_hash,
             'phone_number': self.phone_number,
-            'birth_date': self.birth_date.isoformat(),
+            'birth_date': self.birth_date.isoformat() if self.birth_date else None,
             'image_url': self.image_url,
             'status': self.status,
             'activation_date': self.activation_date.isoformat(),
-            'last_login': self.last_login.isoformat(),
-            'suspended_at': self.suspended_at.isoformat(),
+            'last_login': self.last_login.isoformat() if self.last_login else None,
+            'suspended_at': self.suspended_at.isoformat() if self.suspended_at else None,
             'suspension_reason': self.suspension_reason,
             'created_at': self.created_at.isoformat(),
             'updated_at': self.updated_at.isoformat(),

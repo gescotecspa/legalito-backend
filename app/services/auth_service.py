@@ -20,6 +20,10 @@ def login_user(email, password):
             "user": user.user,
             "email": user.email,
             "first_name": user.first_name,
-            "last_name":user.last_name,  # Ajustá según tus campos
+            "last_name":user.last_name,
+            "phone_number": user.phone_number,
+            "birth_date": user.birth_date.isoformat() if user.birth_date else None,
+            "image_url": user.image_url,
+            "status": user.status 
         }
     }
