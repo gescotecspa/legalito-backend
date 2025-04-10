@@ -92,8 +92,13 @@ def update_user(user_id, data):
                 setattr(user, key, data[key])
 
     if 'image_base64' in data and data['image_base64']:
-        image_url = save_base64_image(data['image_base64'], user.user, user.image_url)
-        user.image_url = image_url
+        try:
+            image_url = save_base64_image(data['image_base64'], user.user, user.image_url)
+            user.image_url = image_url
+        except Exception as e:
+            # Si algo falla al guardar la imagen, loguear el error
+            print(f"Error al actualizar la imagen: {e}")
+            raise ValueError("No se pudo actualizar la imagen.")
 
     user.updated_at = datetime.now(timezone.utc)
     db.session.commit()

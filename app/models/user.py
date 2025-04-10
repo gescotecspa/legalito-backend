@@ -21,7 +21,9 @@ class User(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow)
     reset_code = db.Column(db.String(6), nullable=True)  
     reset_code_expiration = db.Column(db.DateTime, nullable=True)
+    
     email_accounts = db.relationship('EmailAccount', back_populates='user_rel', cascade='all, delete-orphan')
+    events = db.relationship('Event', back_populates='user_rel', cascade='all, delete-orphan')
     
     def set_reset_code(self, code):
         """Guarda el código de recuperación con una expiración de 10 minutos."""
