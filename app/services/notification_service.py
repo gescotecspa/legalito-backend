@@ -53,4 +53,18 @@ def delete_notification(notification_id):
     db.session.commit()
 
 def get_notifications_by_user(user):
-    return Notification.query.filter_by(user = user).order_by(Notification.received_date.asc()).all()
+    return Notification.query.filter_by(user = user,status="active").order_by(Notification.received_date.asc()).all()
+
+def dismiss (id,user):
+    notification = Notification.query.filter_by(id=id,user=user).first()
+
+    if not notification:
+        raise NotificationNotFoundException(
+            f"Notification with id {id} for user {user} not found."
+        )
+    
+    notification.status = "dismissed"
+
+    db.session.commit()
+
+    return notification

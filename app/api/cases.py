@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, abort
 from flask_jwt_extended import jwt_required
-from app.services.case_service import create_case, list_cases, delete_case, CaseAlreadyExistsException, CaseNotFoundException
+from app.services.case_service import create_case, list_cases, delete_case,list_cases_by_user, CaseAlreadyExistsException, CaseNotFoundException
 
 case_bp = Blueprint('cases', __name__)
 
@@ -47,3 +47,16 @@ def update():
 @jwt_required()
 def get(id):
     abort(501)
+
+@case_bp.route('/cases/byUser', methods=['POST'])
+#@jwt_required()
+def list_by_user():
+    
+    data = request.get_json()
+    user = data.get('user')
+    
+    try:
+        data = list_cases_by_user(user)
+        return jsonify([n.serialize() for n in data]), 200
+    except Exception as e:
+        return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
