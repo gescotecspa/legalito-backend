@@ -1,5 +1,5 @@
 from app import db
-from app.models import Case
+from app.models import Case, CaseUser
 from datetime import datetime
 
 class CaseAlreadyExistsException(Exception):
@@ -44,4 +44,11 @@ def delete_case(case_id):
     db.session.commit()
 
 def list_cases_by_user(user):
-    return Case.query.filter_by(user = user).order_by(Case.created_at.asc()).all()
+    result = (
+        db.session.query(Case)
+        .join(CaseUser, Case.id == CaseUser.case_id)
+        .filter(CaseUser.user == user)
+        .order_by(Case.name.asc())
+        .all()
+    )
+    return result
