@@ -8,4 +8,4 @@ from .courthouse_service import list_courthouses
 from .user_service import list_users,register_user
 from .email_account_service import add_email_account,list_email_accounts,get_email_accounts_by_user,delete_email_accounts, get_email_account_by_id, update_email_account
 from .auth_service import login_user
-from .event_service import add_event,delete_event,update_event,list_events_by_user,get_event
+from app.services.event_service import create_event, delete_event_service, edit_event_service, list_events_by_user_service, EventNotFoundException
