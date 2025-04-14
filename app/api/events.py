@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify,abort
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from app.event_creator import create_and_send_ics_file
-from app.services.event_service import create_event, delete_event_service, edit_event_service, EventNotFoundException, list_events_by_user_service
+from app.services.event_service import create_event, delete_event_service, edit_event_service, EventNotFoundException, get_event_by_id_service, list_events_by_user_service
 
 events_bp = Blueprint('events', __name__)
 
@@ -113,5 +113,21 @@ def delete_event(event_id):
     try:
         delete_event_service(event_id=event_id, user_id=current_user)
         return jsonify({"message": "Evento eliminado exitosamente"}), 200
+    except Exception as e:
+        return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
+    
+    
+@events_bp.route('/events/<int:event_id>', methods=['GET'])
+@jwt_required()
+def get_event_by_id(event_id):
+    """
+    Endpoint para obtener un evento por su ID.
+    """
+    try:
+        # Llamamos al servicio que busca el evento por ID
+        event = get_event_by_id_service(event_id)
+        return jsonify(event.serialize()), 200
+    except EventNotFoundException as e:
+        return jsonify({"error": str(e)}), 404
     except Exception as e:
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
