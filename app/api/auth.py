@@ -2,9 +2,9 @@ from datetime import datetime
 import bcrypt
 from flask import Blueprint, request, jsonify
 from app.models.user import User
-from app.services.auth_service import login_user, InvalidCredentialsException
+from app.services.auth_service import InactiveAccountException, login_user, InvalidCredentialsException
 from app.services.email_service import send_reset_email
-from app.services.user_service import create_reset_token, get_user_by_email, register_user, EmailAlreadyExistsException, reset_password
+from app.services.user_service import UserNotFoundException, create_reset_token, delete_user, get_user_by_email, register_user, EmailAlreadyExistsException, reset_password
 import random
 from app import db
 
@@ -25,6 +25,8 @@ def login():
         return jsonify(result), 200
     except InvalidCredentialsException as e:
         return jsonify({"error": str(e)}), 401
+    except InactiveAccountException as e:
+        return jsonify({"error": str(e)}), 403
     except Exception as e:
         return jsonify({"error": f"Error inesperado: {str(e)}"}), 500
     
@@ -99,3 +101,22 @@ def reset_password():
     db.session.commit()
 
     return jsonify({"message": "Password successfully updated"}), 200
+
+@auth_bp.route('/auth/delete-account', methods=['POST'])
+def delete_account():
+    data = request.json
+    email = data.get('email')
+    password = data.get('password')
+
+    if not email or not password:
+        return jsonify({"error": "Email y contraseña son requeridos"}), 400
+
+    try:
+        delete_user(email, password)
+        return jsonify({"message": "Cuenta eliminada exitosamente"}), 200
+    except UserNotFoundException:
+        return jsonify({"error": "Usuario no encontrado"}), 404
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 401
+    except Exception as e:
+        return jsonify({"error": f"Error inesperado: {str(e)}"}), 500
