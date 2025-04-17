@@ -12,7 +12,6 @@ class User(db.Model):
     phone_number = db.Column(db.String(20), nullable=True)
     birth_date = db.Column(db.DateTime, nullable=True)
     image_url = db.Column(db.String(200), nullable=True)
-    status = db.Column(db.String(20), nullable=True)
     activation_date = db.Column(db.DateTime, default=datetime.utcnow)
     last_login = db.Column(db.DateTime, nullable=True)
     suspended_at = db.Column(db.DateTime, nullable=True)
@@ -21,7 +20,10 @@ class User(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow)
     reset_code = db.Column(db.String(6), nullable=True)  
     reset_code_expiration = db.Column(db.DateTime, nullable=True)
+    status_id = db.Column(db.Integer, db.ForeignKey('statuses.id'), nullable=True)
+    deleted_at = db.Column(db.DateTime, nullable=True)
     
+    status = db.relationship('Status')
     email_accounts = db.relationship('EmailAccount', back_populates='user_rel', cascade='all, delete-orphan')
     events = db.relationship('Event', back_populates='user_rel', cascade='all, delete-orphan')
     
@@ -41,13 +43,14 @@ class User(db.Model):
             'phone_number': self.phone_number,
             'birth_date': self.birth_date.isoformat() if self.birth_date else None,
             'image_url': self.image_url,
-            'status': self.status,
             'activation_date': self.activation_date.isoformat(),
             'last_login': self.last_login.isoformat() if self.last_login else None,
+            'status': self.status.serialize() if self.status else None,
             'suspended_at': self.suspended_at.isoformat() if self.suspended_at else None,
             'suspension_reason': self.suspension_reason,
             'created_at': self.created_at.isoformat(),
             'updated_at': self.updated_at.isoformat(),
+            'deleted_at': self.deleted_at.isoformat() if self.deleted_at else None,
             'reset_code': self.reset_code,
             'reset_code_expiration': self.reset_code_expiration.isoformat() if self.reset_code_expiration else None
         }

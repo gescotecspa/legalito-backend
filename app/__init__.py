@@ -3,6 +3,8 @@ from flask_sqlalchemy import SQLAlchemy
 from app.extensions import bcrypt, jwt
 from flask_migrate import Migrate
 import logging
+
+
 # Inicializamos SQLAlchemy
 db = SQLAlchemy()
 migrate = Migrate()
@@ -25,5 +27,8 @@ def create_app():
 
     with app.app_context():
         db.create_all()
+        from app.utils.statusLoader import initialize_statuses
+        initialize_statuses()
+
 
     return app

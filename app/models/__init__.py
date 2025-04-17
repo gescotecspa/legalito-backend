@@ -10,3 +10,4 @@ from .rol import Rol
 from .favorite import Favorite
 from .event import Event
 from .case_user import CaseUser
+from .status import Status

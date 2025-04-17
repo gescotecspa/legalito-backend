@@ -4,6 +4,7 @@ from flask import current_app
 from app import db
 from app.models import User
 from app.extensions import bcrypt
+from app.models.status import Status
 from app.utils.image_handler import save_base64_image
 from datetime import datetime, timezone
 
@@ -24,13 +25,18 @@ def register_user(email, password, first_name, last_name):
     if existing_user:
         raise EmailAlreadyExistsException("El email ya está registrado")
 
+    active_status = Status.query.filter_by(name='Activo').first()
+    if not active_status:
+        raise ValueError("El estado 'Activo' no existe en la base de datos")
+    
     hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
     user = User(
         user= email,
         email=email,
         password_hash=hashed_password,
         first_name=first_name,
-        last_name=last_name
+        last_name=last_name,
+        status_id=active_status.id
     )
 
     db.session.add(user)
@@ -40,12 +46,28 @@ def register_user(email, password, first_name, last_name):
         "user": user.user,
         "email": user.email,
         "first_name": user.first_name,
-        "last_name": user.last_name
+        "last_name": user.last_name,
+        "status_id": user.status_id
     }
 
-def delete(user):
-    pass
 
+def delete_user(email, password):
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        raise UserNotFoundException("Usuario no encontrado")
+
+    if not bcrypt.check_password_hash(user.password_hash, password):
+        raise ValueError("Contraseña incorrecta")
+
+    deleted_status = Status.query.filter_by(code="deleted").first()
+    if not deleted_status:
+        raise ValueError("El estado con código 'deleted' no existe")
+    user.deleted_at = datetime.now(timezone.utc)
+    user.status_id = deleted_status.id
+    user.updated_at = datetime.now(timezone.utc)
+
+    db.session.commit()
+    return True
 def get_user_by_email(email):
     return User.query.filter_by(email=email).first()
 
