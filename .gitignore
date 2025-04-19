@@ -12,7 +12,7 @@ env/
 
 # Archivos de configuración de entorno
 *.env
-.env.*
+#.env.*
 
 # Logs y bases de datos temporales
 *.log
