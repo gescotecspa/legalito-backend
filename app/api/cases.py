@@ -49,7 +49,7 @@ def get(id):
     abort(501)
 
 @case_bp.route('/cases/byUser', methods=['POST'])
-#@jwt_required()
+@jwt_required()
 def list_by_user():
     
     data = request.get_json()
@@ -59,4 +59,4 @@ def list_by_user():
         data = list_cases_by_user(user)
         return jsonify([n.serialize() for n in data]), 200
     except Exception as e:
-        return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
+        return jsonify({"error": f"Unexpected error: {str(e)}"}), 500 

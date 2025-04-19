@@ -3,7 +3,7 @@ from app.models import Event, User, Parameter
 from app import db
 from sqlalchemy import asc
 
-class EventNotFoundException:
+class EventNotFoundException(Exception):
     pass
 
 def create_event(user_id, title, start_date, description=None, type_id=None):
@@ -66,8 +66,6 @@ def edit_event_service(event_id, user_id, title=None, start_date=None, descripti
 
 def list_events_by_user_service(user_id):
     events = Event.query.filter_by(user=user_id).order_by(asc(Event.start_date)).all()
-    if not events:
-        raise ValueError("No se encontraron eventos para este usuario.")
     return events
 
 def get_event_by_id_service(event_id):

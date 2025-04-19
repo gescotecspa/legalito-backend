@@ -18,7 +18,7 @@ def list_all_assistants():
 def list_by_filter(typeId,regionId):
     try:
         data = list_assistants_by_filter(typeId,regionId)
-        print(data)
+        
         return jsonify(data), 200
     except AssistantNotFoundException as e:
         return jsonify({"error": str(e)}), 404
@@ -33,7 +33,7 @@ def get_favorite():
 
     try:
         data = list_assistants_favorite(user)
-        return jsonify([f.serialize() for f in data]), 200
+        return jsonify(data), 200
     except AssistantNotFoundException as e:
         return jsonify({"error": str(e)}), 404
     except Exception as e:

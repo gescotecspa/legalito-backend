@@ -73,12 +73,15 @@ def create_event_api():
     except Exception as e:
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
     
-@events_bp.route('/events/byuser', methods=['GET'])
+@events_bp.route('/events/byuser', methods=['POST'])
 @jwt_required()
 def list_events_by_user():
-    current_user = get_jwt_identity()
+    #current_user = get_jwt_identity()
+    data = request.get_json()
+    user = data.get('user')
+    print(user)
     try:
-        events = list_events_by_user_service(current_user)
+        events = list_events_by_user_service(user)
         return jsonify([event.serialize() for event in events]), 200
     except EventNotFoundException as e:
         return jsonify({"error": str(e)}), 404
