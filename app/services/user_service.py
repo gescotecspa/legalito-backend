@@ -25,7 +25,7 @@ def register_user(email, password, first_name, last_name):
     if existing_user:
         raise EmailAlreadyExistsException("El email ya está registrado")
 
-    active_status = Status.query.filter_by(name='Activo').first()
+    active_status = Status.query.filter_by(code='active').first()
     if not active_status:
         raise ValueError("El estado 'Activo' no existe en la base de datos")
     
