@@ -5,6 +5,7 @@ from app import db
 from app.models import User
 from app.extensions import bcrypt
 from app.models.status import Status
+from app.services.terms_and_conditions_service import TermsAndConditionsService
 from app.utils.image_handler import save_base64_image
 from datetime import datetime, timezone
 
@@ -30,13 +31,19 @@ def register_user(email, password, first_name, last_name):
         raise ValueError("El estado 'Activo' no existe en la base de datos")
     
     hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+    # Obtener los términos y condiciones más recientes
+    latest_terms = TermsAndConditionsService.get_latest_version()
+    if not latest_terms:
+        raise ValueError("No terms and conditions available")
+    
     user = User(
         user= email,
         email=email,
         password_hash=hashed_password,
         first_name=first_name,
         last_name=last_name,
-        status_id=active_status.id
+        status_id=active_status.id,
+        terms_and_conditions_id=latest_terms.id
     )
 
     db.session.add(user)
@@ -47,7 +54,9 @@ def register_user(email, password, first_name, last_name):
         "email": user.email,
         "first_name": user.first_name,
         "last_name": user.last_name,
-        "status_id": user.status_id
+        "status_id": user.status_id,
+        "terms_and_conditions_id": user.terms_and_conditions_id,
+        "terms_version": latest_terms.version
     }
 
 
