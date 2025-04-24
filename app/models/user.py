@@ -1,5 +1,5 @@
 from .. import db
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -23,10 +23,14 @@ class User(db.Model):
     status_id = db.Column(db.Integer, db.ForeignKey('statuses.id'), nullable=True)
     deleted_at = db.Column(db.DateTime, nullable=True)
     
+    terms_and_conditions_id = db.Column(db.Integer, db.ForeignKey('terms_and_conditions.id'), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
+    
     status = db.relationship('Status')
     email_accounts = db.relationship('EmailAccount', back_populates='user_rel', cascade='all, delete-orphan')
     events = db.relationship('Event', back_populates='user_rel', cascade='all, delete-orphan')
-    
+    terms_and_conditions = db.relationship('TermsAndConditions', backref='users')
+
     def set_reset_code(self, code):
         """Guarda el código de recuperación con una expiración de 10 minutos."""
         self.reset_code = code
@@ -34,6 +38,10 @@ class User(db.Model):
         db.session.commit()
         
     def serialize(self):
+        terms_info = {
+            'terms_id': self.terms_and_conditions.id if self.terms_and_conditions else None,
+            'terms_version': self.terms_and_conditions.version if self.terms_and_conditions else None
+        }
         return {
             'user': self.user,
             'first_name': self.first_name,
@@ -52,5 +60,6 @@ class User(db.Model):
             'updated_at': self.updated_at.isoformat(),
             'deleted_at': self.deleted_at.isoformat() if self.deleted_at else None,
             'reset_code': self.reset_code,
-            'reset_code_expiration': self.reset_code_expiration.isoformat() if self.reset_code_expiration else None
+            'reset_code_expiration': self.reset_code_expiration.isoformat() if self.reset_code_expiration else None,
+            'terms_and_conditions': terms_info
         }

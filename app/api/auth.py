@@ -43,7 +43,7 @@ def register():
 
     if not email or not password:
         return jsonify({"error": "Email and password are required"}), 400
-
+    
     try:
         user = register_user(email, password, first_name, last_name)
         return jsonify({"message": "User successfully registered", "user": user}), 201

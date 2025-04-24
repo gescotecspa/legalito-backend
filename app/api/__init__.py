@@ -11,7 +11,8 @@ from .assistants import assistants_bp
 from .courthouses import courthouses_bp
 from .users import users_bp
 from .auth import auth_bp
-from .image import image_bp 
+from .image import image_bp
+from .terms_and_conditions_api import terms_and_conditions_api__bp
 
 def register_blueprints(app):
     app.register_blueprint(health_bp, url_prefix='/api')
@@ -28,3 +29,4 @@ def register_blueprints(app):
     app.register_blueprint(users_bp, url_prefix='/api')
     app.register_blueprint(auth_bp, url_prefix='/api')
     app.register_blueprint(image_bp, url_prefix='/api')
+    app.register_blueprint(terms_and_conditions_api__bp, url_prefix='/api')
