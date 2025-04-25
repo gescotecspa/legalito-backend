@@ -29,7 +29,9 @@ class User(db.Model):
     status = db.relationship('Status')
     email_accounts = db.relationship('EmailAccount', back_populates='user_rel', cascade='all, delete-orphan')
     events = db.relationship('Event', back_populates='user_rel', cascade='all, delete-orphan')
-    terms_and_conditions = db.relationship('TermsAndConditions', backref='users')
+    
+    # Cambiado aquí para usar lazy='joined'
+    terms_and_conditions = db.relationship('TermsAndConditions', lazy='joined')
 
     def set_reset_code(self, code):
         """Guarda el código de recuperación con una expiración de 10 minutos."""
