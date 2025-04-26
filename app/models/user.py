@@ -1,6 +1,13 @@
 from .. import db
 from datetime import datetime, timedelta, timezone
+import enum
 
+class IdentificationType(enum.Enum):
+    RUT = "RUT"
+    RUN = "RUN"
+    DNI = "DNI"
+    LC  = "LC"
+    
 class User(db.Model):
     __tablename__ = 'users'
 
@@ -23,6 +30,12 @@ class User(db.Model):
     status_id = db.Column(db.Integer, db.ForeignKey('statuses.id'), nullable=True)
     deleted_at = db.Column(db.DateTime, nullable=True)
     
+    # ← Nuevo campo para RUT / DNI / RUN / LC
+    identification = db.Column(db.String(50), unique=True, nullable=True)
+    identification_type = db.Column(
+        db.Enum(IdentificationType, name="identification_type_enum"),
+        nullable=True
+    )
     terms_and_conditions_id = db.Column(db.Integer, db.ForeignKey('terms_and_conditions.id'), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
     
@@ -63,5 +76,7 @@ class User(db.Model):
             'deleted_at': self.deleted_at.isoformat() if self.deleted_at else None,
             'reset_code': self.reset_code,
             'reset_code_expiration': self.reset_code_expiration.isoformat() if self.reset_code_expiration else None,
+            'identification': self.identification,
+            'identification_type': self.identification_type.value if self.identification_type else None,
             'terms_and_conditions': terms_info
         }
