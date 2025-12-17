@@ -34,6 +34,10 @@ def get_email_accounts_by_user(user):
     accounts = EmailAccount.query.filter_by(user=user).all()
     return accounts
 
+def get_user_active_email(user,email):
+    account = EmailAccount.query.filter_by(email_address=email, user=user).first()
+    return account
+
 def delete_email_accounts(email, user):
     try:
         account = EmailAccount.query.filter_by(email_address=email, user=user).first()

@@ -1,36 +1,49 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required
-from app.models import EmailAccount
-from app.imap_reader import read_unread_emails_for_account
-from app.info_extractor import extract_event_info
-from app.event_creator import create_and_send_ics_file
+from app.utils.imap_reader import read_unread_emails_for_account
+from app.utils.info_extractor import extract_event_info
+from app.utils.event_creator import create_and_send_ics_file
 from app.services.notification_service import create_notification
+from app.services.email_account_service import get_user_active_email
+from app.services.parameter_service import list_parameters_by_parent
+
 from config import Config
 from datetime import datetime
 
 mails_bp = Blueprint('mails', __name__)
 
 @mails_bp.route('/read-mails', methods=['POST'])
-@jwt_required()
+#@jwt_required()
 def read_mails():
     data = request.get_json()
     email_to_check = data.get('email')
+    user = data.get('user')
     if not email_to_check:
         return jsonify({"error": "Email parameter is required."}), 400
+    #busamos el remitente autorizado
+    filter = list_parameters_by_parent(32)
+    #Tomar el primer parámetro (si existe)
+    if filter:
+        sender_filter = filter[0].name
+    else:
+        return jsonify({"error": "Email parameter not found."}), 400
 
-    account = EmailAccount.query.filter_by(active=True, email_address=email_to_check).first()
+    #buscamos la cuenta del usuario para consultar las notificaciones
+    account = get_user_active_email(user,email_to_check)
+    
     if not account:
         return jsonify({"error": "No active account found with the provided email."}), 404
 
     emails = read_unread_emails_for_account(
         imap_server=account.imap_server,
         email_address=account.email_address,
-        password=account.password
+        password=account.password,
+        sender=sender_filter
     )
 
     extracted_events = []
-    sender_filter = Config.ALLOWED_SENDER.lower()
-
+    
+#anaizamos los mails recuperados
     for email_data in emails:
         subject = email_data.get("subject", "Sin asunto")
         body = email_data.get("body", "")
@@ -45,7 +58,8 @@ def read_mails():
             "received_date": received_date,
             "body": body,
             "marked_as_invitation": "citación" in subject.lower(),
-            "status": "processed"
+            "status": "pending",
+            "user":user
         }
 
         try:
@@ -62,7 +76,7 @@ def read_mails():
                     date_str=event_info["date"],
                     time_str=event_info["time"],
                     location=event_info.get("location"),
-                    recipient_email="javieraoyarzun1991@gmail.com",
+                    recipient_email=user,
                     description=event_info["title"]
                 )
                 extracted_events.append({

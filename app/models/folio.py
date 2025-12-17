@@ -10,7 +10,7 @@ class Folio(db.Model):
     description = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    notifications = db.relationship('Notification', backref='folio', lazy=True)
+    #notifications = db.relationship('Notification', backref='folio', lazy=True)
 
     def serialize(self):
         return {

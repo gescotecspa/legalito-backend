@@ -40,12 +40,12 @@ def get_notification_by_id(id):
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
     
 @notifications_bp.route('/notifications/byUser', methods=['POST'])
-@jwt_required()
+#@jwt_required()
 def list_notifications_by_user():
-    current_user = get_jwt_identity()
+    #current_user = get_jwt_identity()
     data = request.get_json()
-    user = current_user
-    
+    #user = current_user
+    user = data.get('user')
     try:
         data = get_notifications_by_user(user)
         return jsonify([n.serialize() for n in data]), 200
