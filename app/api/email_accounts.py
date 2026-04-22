@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, abort
+from flask import Blueprint, current_app, request, jsonify, abort
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from app import db
 from app.services.email_account_service import add_email_account, get_email_account_by_id, get_email_accounts_by_user,list_email_accounts,delete_email_accounts, toggle_email_account_status, update_email_account
@@ -29,7 +29,6 @@ def list_email_acc():
 @jwt_required()
 def get_email_by_user():
     current_user = get_jwt_identity()
-    # print("usuario desde jwt",current_user)
     accounts = get_email_accounts_by_user(current_user)
     # Siempre devolvé una lista, aunque esté vacía
     return jsonify([a.serialize() for a in accounts]), 200
@@ -50,7 +49,7 @@ def delete():
         return jsonify({"message": "Account successfully deleted"}), 200
 
     except Exception as e:
-        print(e)
+        current_app.logger.exception("Unexpected error deleting email account")
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
 @email_accounts_bp.route('/email-accounts', methods=['PUT'])
@@ -77,7 +76,7 @@ def toggle_status():
         }), 200
 
     except Exception as e:
-        print(e)
+        current_app.logger.exception("Unexpected error toggling email account status")
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
     
 

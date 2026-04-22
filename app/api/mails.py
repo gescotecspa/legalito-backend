@@ -1,13 +1,12 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, current_app, jsonify, request
 from flask_jwt_extended import jwt_required
-from app.utils.imap_reader import read_unread_emails_for_account
+from app.integrations.imap_reader import read_unread_emails_for_account
+from app.integrations.smtp_calendar import create_and_send_ics_file
 from app.utils.info_extractor import extract_event_info
-from app.utils.event_creator import create_and_send_ics_file
 from app.services.notification_service import create_notification
 from app.services.email_account_service import get_user_active_email
 from app.services.parameter_service import list_parameters_by_parent
 
-from config import Config
 from datetime import datetime
 
 mails_bp = Blueprint('mails', __name__)
@@ -65,7 +64,7 @@ def read_mails():
         try:
             create_notification(notification_data)
         except Exception as e:
-            print(f"Error creating notification: {e}")
+            current_app.logger.exception("Error creating notification from email")
             continue
 
         if sender_filter in sender.lower() and notification_data["marked_as_invitation"]:

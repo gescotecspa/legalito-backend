@@ -6,6 +6,7 @@ MAILJET_API_KEY = os.getenv("MAILJET_API_KEY")
 MAILJET_API_SECRET = os.getenv("MAILJET_API_SECRET")
 MAILJET_SENDER_EMAIL = os.getenv("MAILJET_SENDER_EMAIL")
 
+
 def load_email_template(first_name, reset_code):
     return render_template(
         "emails/reset_password.html",
@@ -13,8 +14,9 @@ def load_email_template(first_name, reset_code):
         reset_code=reset_code,
     )
 
+
 def send_reset_email(user_email, user_first_name, reset_code):
-    email_html = load_email_template(user_first_name, reset_code)  
+    email_html = load_email_template(user_first_name, reset_code)
 
     url = "https://api.mailjet.com/v3.1/send"
     headers = {"Content-Type": "application/json"}

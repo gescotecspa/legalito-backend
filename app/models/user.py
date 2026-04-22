@@ -47,10 +47,9 @@ class User(db.Model):
     terms_and_conditions = db.relationship('TermsAndConditions', lazy='joined')
 
     def set_reset_code(self, code):
-        """Guarda el código de recuperación con una expiración de 10 minutos."""
+        """Guarda el código de recuperación con una expiración de 15 minutos."""
         self.reset_code = code
         self.reset_code_expiration = datetime.utcnow() + timedelta(minutes=15)
-        db.session.commit()
         
     def serialize(self):
         terms_info = {
@@ -62,7 +61,6 @@ class User(db.Model):
             'first_name': self.first_name,
             'last_name': self.last_name,
             'email': self.email,
-            'password_hash': self.password_hash,
             'phone_number': self.phone_number,
             'birth_date': self.birth_date.isoformat() if self.birth_date else None,
             'image_url': self.image_url,
@@ -74,8 +72,6 @@ class User(db.Model):
             'created_at': self.created_at.isoformat(),
             'updated_at': self.updated_at.isoformat(),
             'deleted_at': self.deleted_at.isoformat() if self.deleted_at else None,
-            'reset_code': self.reset_code,
-            'reset_code_expiration': self.reset_code_expiration.isoformat() if self.reset_code_expiration else None,
             'identification': self.identification,
             'identification_type': self.identification_type.value if self.identification_type else None,
             'terms_and_conditions': terms_info

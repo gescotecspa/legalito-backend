@@ -8,6 +8,8 @@ import logging
 # Inicializamos SQLAlchemy
 db = SQLAlchemy()
 migrate = Migrate()
+
+
 def create_app():
     app = Flask(__name__)
     app.config.from_object('config.Config')
@@ -25,10 +27,7 @@ def create_app():
     from .api import register_blueprints
     register_blueprints(app)
 
-    with app.app_context():
-        db.create_all()
-        from app.utils.statusLoader import initialize_statuses
-        initialize_statuses()
-
+    from .cli import register_cli_commands
+    register_cli_commands(app)
 
     return app

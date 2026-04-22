@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify,abort
 from flask_jwt_extended import get_jwt_identity, jwt_required
-from app.utils.event_creator import create_and_send_ics_file
+from app.integrations.smtp_calendar import create_and_send_ics_file
 from app.services.event_service import create_event, delete_event_service, edit_event_service, EventNotFoundException, get_event_by_id_service, list_events_by_user_service
 
 events_bp = Blueprint('events', __name__)
@@ -79,7 +79,6 @@ def list_events_by_user():
     #current_user = get_jwt_identity()
     data = request.get_json()
     user = data.get('user')
-    print(user)
     try:
         events = list_events_by_user_service(user)
         return jsonify([event.serialize() for event in events]), 200

@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify,abort
+from flask import Blueprint, current_app, request, jsonify,abort
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from app.services.assistant_service import list_assistants,list_assistants_by_filter,add_favorite_assitant,list_assistants_favorite,delete_favorite_assistant,get_assistant, AssistantNotFoundException
 
@@ -48,7 +48,6 @@ def add_favorite ():
     user = get_jwt_identity()
 
     try:
-        print(user)
         add_favorite_assitant(assistantId,user)
        
         return jsonify(True), 200
@@ -68,7 +67,7 @@ def delete_favorite ():
        
         return jsonify(True), 200
     except Exception as e:
-        print(e)
+        current_app.logger.exception("Unexpected error deleting favorite assistant")
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
     
 @assistants_bp.route('/assistants/profile/<int:id>', methods=['GET'])

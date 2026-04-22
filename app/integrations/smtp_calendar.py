@@ -1,12 +1,15 @@
+import datetime
 import smtplib
+from email import encoders
+from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from email.mime.base import MIMEBase
-from email import encoders
 from email.utils import formatdate
-import datetime
+
 from icalendar import Calendar, Event, vCalAddress, vText
+
 from config import Config
+
 
 def create_and_send_ics_file(title, date_str, time_str, location, recipient_email, description=""):
     try:

@@ -1,12 +1,20 @@
-from datetime import datetime
-import bcrypt
 from flask import Blueprint, request, jsonify
-from app.models.user import User
-from app.services.auth_service import InactiveAccountException, login_user, InvalidCredentialsException
-from app.services.email_service import send_reset_email
-from app.services.user_service import UserNotFoundException, create_reset_token, delete_user, get_user_by_email, register_user, EmailAlreadyExistsException, reset_password
-import random
-from app import db
+from app.services.auth_service import (
+    ExpiredResetCodeException,
+    InactiveAccountException,
+    InvalidCredentialsException,
+    InvalidResetCodeException,
+    UserNotFoundException as AuthUserNotFoundException,
+    login_user,
+    request_password_reset,
+    reset_password_with_code,
+)
+from app.services.user_service import (
+    EmailAlreadyExistsException,
+    UserNotFoundException as UserServiceUserNotFoundException,
+    delete_user,
+    register_user,
+)
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -16,7 +24,6 @@ def login():
     email = data.get('email')
     password = data.get('password')
 
-    print (email)
     if not email or not password:
         return jsonify({"error": "Email and password are required"}), 400
 
@@ -60,16 +67,13 @@ def forgot_password():
     if not email:
         return jsonify({"error": "Email is required"}), 400
 
-    user = User.query.filter_by(email=email).first()
-    if not user:
-        return jsonify({"error": "User not found"}), 404
-
-    reset_code = str(random.randint(100000, 999999)) 
-    user.set_reset_code(reset_code)
-    db.session.commit()
-
-    send_reset_email(user.email, user.first_name, reset_code)  
-    return jsonify({"message": "A recovery code has been sent to your email"}), 200
+    try:
+        result = request_password_reset(email)
+        return jsonify(result), 200
+    except AuthUserNotFoundException as e:
+        return jsonify({"error": str(e)}), 404
+    except Exception as e:
+        return jsonify({"error": f"Error inesperado: {str(e)}"}), 500
 
 @auth_bp.route('/auth/reset-password', methods=['POST'])
 def reset_password():
@@ -81,26 +85,15 @@ def reset_password():
     if not email or not reset_code or not new_password:
         return jsonify({"error": "Email, reset code, and new password are required"}), 400
 
-    user = User.query.filter_by(email=email).first()
-    if not user:
-        return jsonify({"error": "User not found"}), 404
-
-    # Verificar que el código es correcto y no ha expirado
-    if user.reset_code != reset_code:
-        return jsonify({"error": "Incorrect code"}), 400
-    if datetime.utcnow() > user.reset_code_expiration:
-        return jsonify({"error": "Code expired"}), 400
-
-    # Actualizar la contraseña
-    hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())  
-    user.password_hash = hashed_password.decode('utf-8')
-
-    # Eliminar el código usado
-    user.reset_code = None
-    user.reset_code_expiration = None
-    db.session.commit()
-
-    return jsonify({"message": "Password successfully updated"}), 200
+    try:
+        result = reset_password_with_code(email, reset_code, new_password)
+        return jsonify(result), 200
+    except AuthUserNotFoundException as e:
+        return jsonify({"error": str(e)}), 404
+    except (InvalidResetCodeException, ExpiredResetCodeException) as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": f"Error inesperado: {str(e)}"}), 500
 
 @auth_bp.route('/auth/delete-account', methods=['POST'])
 def delete_account():
@@ -114,7 +107,7 @@ def delete_account():
     try:
         delete_user(email, password)
         return jsonify({"message": "Cuenta eliminada exitosamente"}), 200
-    except UserNotFoundException:
+    except UserServiceUserNotFoundException:
         return jsonify({"error": "Usuario no encontrado"}), 404
     except ValueError as e:
         return jsonify({"error": str(e)}), 401

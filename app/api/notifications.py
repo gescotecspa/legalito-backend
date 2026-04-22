@@ -1,6 +1,6 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, current_app, request, jsonify
 from flask_jwt_extended import get_jwt_identity, jwt_required
-from app.services.notification_service import get_notification,create_notification, list_notifications, delete_notification, get_notifications_by_user,dismiss,NotificationNotFoundException
+from app.services.notification_service import get_notification,create_notification, list_notifications as list_notifications_service, delete_notification, get_notifications_by_user,dismiss,NotificationNotFoundException
 
 notifications_bp = Blueprint('notifications', __name__)
 
@@ -20,7 +20,7 @@ def add_notification():
 @jwt_required()
 def list_notifications():
     try:
-        notifications = list_notifications()
+        notifications = list_notifications_service()
         return jsonify([n.serialize() for n in notifications]), 200
     except Exception as e:
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
@@ -71,11 +71,13 @@ def dismiss_notifications():
     
     id = data.get('id')
     user = data.get('user')
-    print(data)
     #user = current_user
     
     try:
         result = dismiss(id,user)
         return jsonify(True), 200
+    except NotificationNotFoundException as e:
+        return jsonify({"error": str(e)}), 404
     except Exception as e:
+        current_app.logger.exception("Error dismissing notification")
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500

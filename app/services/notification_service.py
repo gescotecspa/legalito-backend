@@ -1,6 +1,7 @@
 from app import db
 from app.models import Notification
 from datetime import datetime
+from flask import current_app
 
 class NotificationNotFoundException(Exception):
     pass
@@ -15,10 +16,6 @@ def create_notification(data):
         if not data.get(field):
             raise ValueError(f"'{field}' is a required field.")
 
-    print(data)
-    print(type(data.get('received_date')))
-    print(type(data.get('marked_as_invitation')))
-
     notification = Notification(
         folio_id=data.get('folio_id'),
         rit=data.get('rit'),
@@ -31,13 +28,12 @@ def create_notification(data):
         status=data.get('status', 'pending'),
         user=data.get('user')
     )
-    print(notification)
     try:
         db.session.add(notification)
         db.session.commit()
     except Exception as e:
         db.session.rollback()
-        print(e)
+        current_app.logger.exception("Error creating notification")
         return False
     return notification
     

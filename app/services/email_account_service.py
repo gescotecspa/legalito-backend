@@ -1,5 +1,6 @@
 from app import db
 from app.models import EmailAccount, User
+from flask import current_app
 
 def add_email_account(data):
     user_email = data['user']
@@ -50,7 +51,7 @@ def delete_email_accounts(email, user):
 
     except Exception as e:
         db.session.rollback()
-        print(f"Error eliminando la cuenta: {e}")
+        current_app.logger.exception("Error deleting email account")
         return False
     
 def toggle_email_account_status(email, user):
@@ -65,7 +66,7 @@ def toggle_email_account_status(email, user):
 
     except Exception as e:
         db.session.rollback()
-        print(f"Error cambiando el estado de la cuenta: {e}")
+        current_app.logger.exception("Error toggling email account status")
         return None
     
 def get_email_account_by_id(account_id):

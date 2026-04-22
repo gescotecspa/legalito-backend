@@ -1,0 +1,28 @@
+# Integraciones
+
+## Integraciones detectadas
+
+- Mailjet para correo transaccional de recuperacion de contraseña
+- SMTP para envio de invitaciones de calendario con `.ics`
+- IMAP para lectura de correos externos asociados a usuarios
+
+## Ubicacion esperada
+
+Las integraciones externas deben vivir en `app/integrations/`.
+
+- Mailjet: `app/integrations/mailjet_email.py`
+- SMTP/iCalendar: `app/integrations/smtp_calendar.py`
+- IMAP: `app/integrations/imap_reader.py`
+
+Los blueprints y servicios pueden orquestar casos de uso, pero no deberian contener detalles de protocolo, autenticacion con proveedores externos ni armado de payloads propios de cada integracion.
+
+## Regla de documentacion
+
+Cada integracion nueva o modificada deberia dejar documentado:
+
+- objetivo de negocio
+- proveedor usado
+- variables de entorno requeridas
+- manejo de errores
+- impacto en seguridad
+- estrategia de prueba o validacion manual
