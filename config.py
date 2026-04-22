@@ -5,7 +5,12 @@ from datetime import timedelta
 load_dotenv()
 
 class Config:
-    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URI")  # URI de conexión a la base de datos
+    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")  # URI de conexión a la base de datos
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        "pool_pre_ping": True,
+        "pool_recycle": 300
+    }
+    
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = os.getenv("SECRET_KEY", "supersecretkey")  # Clave secreta para la app Flask
 
