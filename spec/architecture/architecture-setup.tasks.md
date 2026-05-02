@@ -2,7 +2,7 @@
 
 ## Estado general
 
-Cerrado con validacion tecnica completa y validacion manual parcial
+Cerrado a nivel de arquitectura base. Quedan follow-ups operativos e integraciones por validar o reemplazar.
 
 ## Objetivo
 
@@ -158,9 +158,23 @@ Estado: parcialmente ejecutada. `auth` y bootstrap ya fueron validados en dev y 
 
 ## Proximos pasos
 
+Estos puntos ya no bloquean el cierre del ajuste arquitectonico, pero quedan como follow-ups operativos:
+
 - validar manualmente lectura de mails y envio de eventos `.ics`
 - reemplazar Mailjet como proveedor de envio para recuperacion de contraseña y correos salientes
 - mantener el runbook de QA actualizado con el flujo operativo vigente
+
+## Criterio de cierre efectivo
+
+Se considera que este plan queda cerrado porque:
+
+- el bootstrap ya es explicito y reproducible
+- el app factory ya no modifica estado operativo
+- existe ADR formal para el patron de capas
+- los dominios principales ya fueron homologados en `api`, `service`, pruebas y specs
+- la reconstruccion de base fue validada en local y QA
+
+Lo pendiente restante pertenece a operacion o integraciones externas, no a la base estructural del backend.
 
 ## Notas
 

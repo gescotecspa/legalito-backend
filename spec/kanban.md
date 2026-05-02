@@ -13,11 +13,6 @@ Tablero simple para seguir trabajo activo del backend sin depender de notas exte
 
 - validar manualmente lectura de mails y envio de eventos `.ics`
 - reemplazar Mailjet como proveedor de envio para recuperacion de contraseña y otros correos salientes
-- definir si `health` e `image` requieren spec minima o se excluyen explicitamente
-- mover Mailjet, IMAP y SMTP/iCalendar a `app/integrations/`
-- definir estrategia minima de pruebas para refactors de arquitectura
-- actualizar mapa tecnico del sistema
-- cerrar plan de ajuste con resumen y riesgos residuales
 
 ## En curso
 
@@ -81,6 +76,13 @@ Tablero simple para seguir trabajo activo del backend sin depender de notas exte
 - `notifications`
 - `email_accounts`
 - `terms_and_conditions`
+- definir tratamiento documental minimo para `health` e `image`
+- actualizar mapa tecnico del sistema
+- cerrar plan de ajuste con resumen y riesgos residuales
+- mover Mailjet, IMAP y SMTP/iCalendar a `app/integrations/`
+- definir estrategia minima de pruebas para refactors de arquitectura
+- definir estrategia simple de entrega de correo por parametro global
+- implementar seleccion de entrega de correo por `EMAIL_DELIVERY_METHOD` con soporte `local|api`
 
 ## Notas
 
@@ -91,7 +93,7 @@ Tablero simple para seguir trabajo activo del backend sin depender de notas exte
 - Alembic queda en revision `1b52f91b47e5`
 - `statuses` queda seeded con `active`, `suspended` y `deleted`
 - `terms_and_conditions` queda seeded con version minima `v1`
-- pruebas automatizadas totales actuales: 105 tests verdes con `python -m unittest discover -s tests -p 'test_*.py' -v`
+- pruebas automatizadas totales actuales: 108 tests verdes con `python -m unittest discover -s tests -p 'test_*.py' -v`
 - controles de seguridad ya aplicados:
 - JWT obligatorio en endpoints sensibles
 - `EmailAccount` ya no expone `password`
@@ -112,4 +114,16 @@ Tablero simple para seguir trabajo activo del backend sin depender de notas exte
 - `mails/events` siguen pendientes de validacion manual real
 - vacios documentales visibles hoy:
 - existen specs para `auth`, `users`, `cases`, `assistants`, `folios`, `parameters`, `roles`, `courthouses`, `events`, `mails`, `notifications`, `email_accounts` y `terms_and_conditions`
-- queda por decidir si `health` e `image` se documentan con spec minima o se excluyen explicitamente
+- `health` e `image` quedaron documentados solo a nivel `API` por ser endpoints tecnicos sin `use-case` de negocio
+- estado de integraciones externas:
+- `app/integrations/mailjet_email.py` se usa desde `auth_service`
+- `app/integrations/imap_reader.py` y `app/integrations/smtp_calendar.py` se usan desde `mail_service` y `event_service`
+- estrategia minima de pruebas para refactors:
+- queda formalizada en `spec/architecture/testing.md`
+- se considera criterio persistente del repo para futuras sesiones y cambios
+- estrategia de entrega de correo:
+- queda documentada en `spec/architecture/email-delivery-strategy.md`
+- se adopta un unico parametro inicial `EMAIL_DELIVERY_METHOD` con valores `local` o `api`
+- estado actual de implementacion:
+- `EMAIL_DELIVERY_METHOD=local` ya soporta recuperacion de contraseña via SMTP autenticado
+- `EMAIL_DELIVERY_METHOD=api` mantiene compatibilidad con la integracion actual basada en Mailjet

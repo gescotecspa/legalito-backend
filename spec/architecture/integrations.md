@@ -26,3 +26,18 @@ Cada integracion nueva o modificada deberia dejar documentado:
 - manejo de errores
 - impacto en seguridad
 - estrategia de prueba o validacion manual
+
+## Estrategia de entrega de correo
+
+La seleccion del mecanismo de envio de correo debe resolverse por configuracion y no por ramas de negocio en los servicios.
+
+Referencia de diseno:
+
+- [email-delivery-strategy.md](/Users/marcosceliz/Projects/Gescotec/legalito/legalito-backend/spec/architecture/email-delivery-strategy.md)
+
+Resumen:
+
+- parametro unico inicial: `EMAIL_DELIVERY_METHOD`
+- valores esperados: `local` o `api`
+- `local` usa SMTP autenticado
+- `api` usa proveedor HTTP externo

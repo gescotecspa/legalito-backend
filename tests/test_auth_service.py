@@ -7,7 +7,7 @@ from flask import Flask
 from app import db
 import app.models  # noqa: F401
 from app.extensions import bcrypt, jwt
-from app.integrations.mailjet_email import MailjetDeliveryException
+from app.integrations.email_delivery import EmailDeliveryException
 from app.models.status import Status
 from app.models.terms_and_conditions import TermsAndConditions
 from app.models.user import User
@@ -123,8 +123,8 @@ class LoginUserTests(unittest.TestCase):
         send_reset_email_mock,
     ):
         user = self._create_user(email="delivery@example.com")
-        send_reset_email_mock.side_effect = MailjetDeliveryException(
-            "Mailjet delivery failed"
+        send_reset_email_mock.side_effect = EmailDeliveryException(
+            "Email delivery failed"
         )
 
         with self.assertRaises(PasswordResetDeliveryException):

@@ -1,10 +1,5 @@
-import os
 import requests
-from flask import render_template
-
-MAILJET_API_KEY = os.getenv("MAILJET_API_KEY")
-MAILJET_API_SECRET = os.getenv("MAILJET_API_SECRET")
-MAILJET_SENDER_EMAIL = os.getenv("MAILJET_SENDER_EMAIL")
+from flask import current_app, render_template
 
 
 class MailjetDeliveryException(Exception):
@@ -21,12 +16,20 @@ def load_email_template(first_name, reset_code):
 
 def send_reset_email(user_email, user_first_name, reset_code):
     email_html = load_email_template(user_first_name, reset_code)
+    api_key = current_app.config.get("MAILJET_API_KEY")
+    api_secret = current_app.config.get("MAILJET_API_SECRET")
+    sender_email = current_app.config.get("MAILJET_SENDER_EMAIL")
+
+    if not api_key or not api_secret or not sender_email:
+        raise MailjetDeliveryException(
+            "Missing required Mailjet configuration: MAILJET_API_KEY, MAILJET_API_SECRET or MAILJET_SENDER_EMAIL"
+        )
 
     url = "https://api.mailjet.com/v3.1/send"
     headers = {"Content-Type": "application/json"}
     data = {
         "Messages": [{
-            "From": {"Email": MAILJET_SENDER_EMAIL, "Name": "Legalito"},
+            "From": {"Email": sender_email, "Name": "Legalito"},
             "To": [{"Email": user_email, "Name": user_first_name}],
             "Subject": "Código de recuperación de contraseña",
             "HTMLPart": email_html
@@ -37,7 +40,7 @@ def send_reset_email(user_email, user_first_name, reset_code):
         url,
         json=data,
         headers=headers,
-        auth=(MAILJET_API_KEY, MAILJET_API_SECRET),
+        auth=(api_key, api_secret),
     )
 
     try:
