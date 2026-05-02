@@ -11,8 +11,8 @@ Tablero simple para seguir trabajo activo del backend sin depender de notas exte
 
 ## Todo
 
-- validar flujo `recreate-db` o equivalente seguro sobre servidor/base de QA
 - validar manualmente lectura de mails y envio de eventos `.ics`
+- reemplazar Mailjet como proveedor de envio para recuperacion de contraseña y otros correos salientes
 
 ## En curso
 
@@ -27,8 +27,10 @@ Tablero simple para seguir trabajo activo del backend sin depender de notas exte
 - documentar flujos operativos para base nueva, recreacion total y actualizacion incremental
 - implementar comando `flask --app run.py recreate-db --yes`
 - validar tecnicamente recreacion completa de base local con migraciones y seed inicial
+- validar recreacion completa y seed inicial en QA
 - agregar pruebas automatizadas para `auth_service` y `app/api/auth.py`
 - validar manualmente flujo base de `auth` en dev
+- validar manualmente flujo base de `auth` en QA
 - agregar seed/bootstrap minimo de `terms_and_conditions` para entornos limpios
 - hacer que `forgot-password` no responda exito cuando Mailjet falla
 - separar validacion HTTP de logica de aplicacion en endpoints de prioridad alta:
@@ -78,3 +80,9 @@ Tablero simple para seguir trabajo activo del backend sin depender de notas exte
 - validacion manual `auth` en dev:
 - sobre base limpia recreada, `register` funciona sin inserciones manuales de terminos
 - `forgot-password` devuelve `502` cuando Mailjet responde no exitoso
+- validacion manual `auth` en QA:
+- `health` responde `200`
+- `register` responde `201`
+- `login` responde `200`
+- `forgot-password` responde `502`
+- `forgot-password` falla porque Mailjet ya no esta disponible como proveedor de envio en QA

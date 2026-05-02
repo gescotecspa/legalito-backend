@@ -4,7 +4,7 @@ Specs de contratos HTTP para login, registro, recuperacion de contraseña y otro
 
 ## Estado de pruebas
 
-- Unit tests: parcial
+- Unit tests: implementados para flujos principales y mapeo HTTP critico
 - Integration tests: pendiente
 - E2E: pendiente
 
@@ -18,3 +18,14 @@ Specs de contratos HTTP para login, registro, recuperacion de contraseña y otro
 - mapeo HTTP de conflictos en `register`
 - mapeo HTTP de errores de recuperacion de contraseña en `forgot-password` y `reset-password`
 - mapeo HTTP de fallo de entrega de correo en `forgot-password` a `502`
+
+## Validacion manual actual
+
+- en dev: `register` y `login` funcionan sobre base recreada
+- en QA: `health`, `register` y `login` quedaron validados con respuesta exitosa
+- en QA: `forgot-password` devuelve `502`, consistente con el fallo real del proveedor de correo
+
+## Observaciones abiertas
+
+- Mailjet ya no esta disponible como proveedor efectivo de envio en QA
+- el siguiente ajuste funcional en `auth` es reemplazar Mailjet por otro proveedor o por SMTP directo

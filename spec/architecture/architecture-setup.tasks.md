@@ -2,7 +2,7 @@
 
 ## Estado general
 
-Cerrado con validacion manual diferida
+Cerrado con validacion tecnica completa y validacion manual parcial
 
 ## Objetivo
 
@@ -119,7 +119,7 @@ Entregables:
 - lectura de correos asociados
 - generacion y envio de invitacion `.ics`
 
-Estado: diferida para validacion manual posterior.
+Estado: parcialmente ejecutada. `auth` y bootstrap ya fueron validados en dev y QA; quedan pendientes `mails` y `events`.
 
 ## Resumen de cierre
 
@@ -134,27 +134,33 @@ Estado: diferida para validacion manual posterior.
 
 ## Riesgos residuales
 
-- falta validacion manual de flujos reales con entorno, base de datos y proveedores configurados
-- no se ejecuto suite automatizada porque no existe una suite Python configurada en el repo
-- las integraciones externas se movieron sin cambiar comportamiento, pero requieren prueba manual con credenciales reales o dobles controlados
+- falta validacion manual de lectura de mails y envio de eventos `.ics` con proveedores reales configurados
+- el envio de correo para recuperacion de contraseña sigue acoplado a Mailjet y QA ya confirmo que ese proveedor no esta disponible
+- las integraciones externas se movieron sin cambiar comportamiento base, pero requieren prueba manual adicional con credenciales reales o dobles controlados
 - el historial de migraciones fue ajustado para soportar recreacion desde cero, pero conviene seguir simplificandolo cuando exista una suite automatizada
 
 ## Validacion tecnica ejecutada
 
 - se implemento el comando `flask --app run.py recreate-db --yes`
 - el comando fue ejecutado con exito sobre la base local `legalito_db`
+- el comando fue ejecutado con exito tambien en QA
 - la recreacion completa reconstruyo schema, aplico migraciones y cargo datos base
 - `alembic_version` quedo en `1b52f91b47e5`
 - la tabla `statuses` quedo con `active`, `suspended` y `deleted`
+- `terms_and_conditions` quedo seeded con `v1`
+
+## Validacion manual ejecutada
+
+- en dev se validaron `register`, `login` y `forgot-password`
+- en QA se validaron `health`, `register` y `login`
+- en QA `forgot-password` devolvio `502`, confirmando que ya no responde falso exito cuando falla el proveedor
+- en QA se confirmo que Mailjet ya no esta disponible como proveedor de envio y debe reemplazarse
 
 ## Proximos pasos
 
-- ejecutar la validacion manual minima listada en este archivo
-- agregar pruebas unitarias iniciales para `auth_service` y app factory
-- refactorizar endpoints priorizados que aun mezclan validaciones HTTP con orquestacion de servicios:
-- prioridad alta: `mails.read_mails`, `events.create_and_send_event`, `notifications.list_notifications_by_user`
-- prioridad media: `events.list_events_by_user`, `events.edit_event`, `email_accounts.update_account`, `terms_and_conditions.AcceptTermsResource.put`
-- definir si algun criterio de arquitectura ya amerita ADR estable
+- validar manualmente lectura de mails y envio de eventos `.ics`
+- reemplazar Mailjet como proveedor de envio para recuperacion de contraseña y correos salientes
+- mantener el runbook de QA actualizado con el flujo operativo vigente
 
 ## Notas
 

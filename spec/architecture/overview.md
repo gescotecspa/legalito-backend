@@ -123,3 +123,7 @@ Resultado esperado:
 - `flask --app run.py db upgrade` debe funcionar sobre una base vacia
 - `flask --app run.py setup-initial-data` debe ser idempotente
 - recrear el entorno completo debe resolverse sin pasos manuales fuera de `drop schema`, `upgrade` y `setup`
+
+## Referencia operativa
+
+Para futuras actualizaciones del servidor de QA, usar el runbook en [qa-update-runbook.md](/Users/marcosceliz/Projects/Gescotec/legalito/legalito-backend/spec/architecture/qa-update-runbook.md).

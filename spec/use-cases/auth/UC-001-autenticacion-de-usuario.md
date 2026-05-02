@@ -2,7 +2,7 @@
 
 ## Estado
 
-Borrador
+Vigente con validacion tecnica y validacion manual parcial
 
 ## Objetivo
 
@@ -57,6 +57,7 @@ sequenceDiagram
 - Si el email no corresponde a un usuario existente, el flujo se rechaza como credenciales invalidas.
 - Si la contraseña no coincide, el flujo se rechaza como credenciales invalidas.
 - Si la cuenta existe pero no tiene estado `active`, el flujo se rechaza por cuenta inactiva.
+- Si el usuario excede el rate limiting configurado, el flujo se rechaza con `429`.
 - Si ocurre un error inesperado, el flujo se rechaza como error interno.
 
 ## Reglas de negocio
@@ -85,7 +86,7 @@ sequenceDiagram
 
 ## Estado de pruebas
 
-- Unit tests: parcial
+- Unit tests: implementados para reglas principales y errores de recuperacion
 - Integration tests: pendiente
 - E2E: pendiente
 
@@ -95,3 +96,13 @@ sequenceDiagram
 - `auth_service.request_password_reset` cubre usuario existente, usuario inexistente y fallo de entrega de correo.
 - `auth_service.reset_password_with_code` cubre caso exitoso, codigo invalido y codigo expirado.
 - `app/api/auth.py` cubre mapeo HTTP basico para login, register, forgot-password y reset-password, incluido `429` por rate limiting.
+
+## Validacion manual actual
+
+- en dev: `register` y `login` quedaron validados sobre base recreada
+- en QA: `health`, `register` y `login` quedaron validados
+- en QA: `forgot-password` devuelve `502` cuando falla el proveedor de correo, sin falso exito
+
+## Observacion vigente
+
+El flujo de recuperacion de contraseña sigue funcional a nivel de contrato y manejo de errores, pero el proveedor Mailjet debe reemplazarse para restaurar el envio real de correos en QA.
