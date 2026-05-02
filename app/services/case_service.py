@@ -1,12 +1,16 @@
+from datetime import datetime
+
 from app import db
 from app.models import Case, CaseUser
-from datetime import datetime
+
 
 class CaseAlreadyExistsException(Exception):
     pass
 
+
 class CaseNotFoundException(Exception):
     pass
+
 
 def create_case(data):
     rit = data.get('rit')
@@ -32,18 +36,24 @@ def create_case(data):
 
     return new_case
 
-def list_cases():
+
+def list_cases_service():
     return Case.query.all()
 
-def delete_case(case_id):
-    case = Case.query.get(case_id)
+
+def delete_case_service(case_id):
+    case = db.session.get(Case, case_id)
     if not case:
         raise CaseNotFoundException(f"Case with id {case_id} not found.")
 
     db.session.delete(case)
     db.session.commit()
 
-def list_cases_by_user(user):
+
+def list_cases_by_user_service(user):
+    if not user:
+        raise ValueError("User parameter is required.")
+
     result = (
         db.session.query(Case)
         .join(CaseUser, Case.id == CaseUser.case_id)

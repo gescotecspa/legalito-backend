@@ -1,23 +1,24 @@
 from app import db
 from app.models import Assistant
-from app.models import Favorite
-from app.models import Parameter
+from app.models import Favorite, Parameter
 
 class AssistantAlreadyExistsException(Exception):
     pass
 
+
 class AssistantNotFoundException(Exception):
     pass
 
-def list_assistants():
-    result = Assistant.query.all()
-    return result
 
-def get_assistant(_id):
-    assistant = Assistant.query.filter_by(id=_id).first()
-    return assistant
+def list_assistants_service():
+    return Assistant.query.all()
 
-def list_assistants_by_filter(typeId,regionId):
+
+def get_assistant_service(assistant_id):
+    return Assistant.query.filter_by(id=assistant_id).first()
+
+
+def list_assistants_by_filter_service(type_id, region_id):
     results = (
         db.session.query(
             Assistant.id,
@@ -34,17 +35,20 @@ def list_assistants_by_filter(typeId,regionId):
         )
         .join(Parameter, Assistant.type_id == Parameter.id)
         .filter(
-            (Assistant.type_id == typeId) | (typeId == 0),
-            (Assistant.region_id == regionId) | (regionId == 0)
+            (Assistant.type_id == type_id) | (type_id == 0),
+            (Assistant.region_id == region_id) | (region_id == 0)
         )
         .order_by(Assistant.last_name.asc())
         .all()
     )
 
-    # Convertir cada Row a diccionario
     return [dict(row._mapping) for row in results]  
 
-def list_assistants_favorite(user):
+
+def list_assistants_favorite_service(user):
+    if not user:
+        raise ValueError("User parameter is required.")
+
     result = (
         db.session.query(
             Assistant.id,
@@ -68,30 +72,47 @@ def list_assistants_favorite(user):
          
     return [dict(row._mapping) for row in result] 
 
-def add_favorite_assitant(assistantId,user):
 
-    new_favorite = Favorite(
-        assistant_id = assistantId,
-        user = user
-    )
+def add_favorite_assistant_service(assistant_id, user):
+    if not assistant_id:
+        raise ValueError("Assistant parameter is required.")
+    if not user:
+        raise ValueError("User parameter is required.")
+
+    assistant = db.session.get(Assistant, assistant_id)
+    if not assistant:
+        raise AssistantNotFoundException("Assistant not found")
+
+    favorite = Favorite.query.filter_by(assistant_id=assistant_id, user=user).first()
+    if favorite:
+        return True
+
+    new_favorite = Favorite(assistant_id=assistant_id, user=user)
 
     db.session.add(new_favorite)
 
     try:
         db.session.commit()
-    except Exception as e:
+    except Exception:
         db.session.rollback()
         return False
 
     return True
 
-def delete_favorite_assistant(assistantId,user):
 
-    Favorite.query.filter_by(assistant_id=assistantId, user=user).delete()
+def delete_favorite_assistant_service(assistant_id, user):
+    if not assistant_id:
+        raise ValueError("Assistant parameter is required.")
+    if not user:
+        raise ValueError("User parameter is required.")
+
+    deleted = Favorite.query.filter_by(assistant_id=assistant_id, user=user).delete()
+    if not deleted:
+        raise AssistantNotFoundException("Favorite assistant not found")
 
     try:
         db.session.commit()
-    except Exception as e:
+    except Exception:
         db.session.rollback()
         return False
 

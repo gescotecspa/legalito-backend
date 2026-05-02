@@ -1,6 +1,14 @@
-from flask import Blueprint, request, jsonify, abort
-from flask_jwt_extended import jwt_required
-from app.services.case_service import create_case, list_cases, delete_case,list_cases_by_user, CaseAlreadyExistsException, CaseNotFoundException
+from flask import Blueprint, abort, jsonify, request
+from flask_jwt_extended import get_jwt_identity, jwt_required
+
+from app.services.case_service import (
+    CaseAlreadyExistsException,
+    CaseNotFoundException,
+    create_case,
+    delete_case_service,
+    list_cases_by_user_service,
+    list_cases_service,
+)
 
 case_bp = Blueprint('cases', __name__)
 
@@ -20,18 +28,18 @@ def add_case():
 
 @case_bp.route('/cases/list', methods=['GET'])
 @jwt_required()
-def list_cases():
+def list_cases_route():
     try:
-        cases = list_cases()
+        cases = list_cases_service()
         return jsonify([case.serialize() for case in cases]), 200
     except Exception as e:
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
 @case_bp.route('/cases/<int:case_id>', methods=['DELETE'])
 @jwt_required()
-def delete_case(case_id):
+def delete_case_route(case_id):
     try:
-        delete_case(case_id)
+        delete_case_service(case_id)
         return jsonify({"message": "Case deleted successfully."}), 200
     except CaseNotFoundException as e:
         return jsonify({"error": str(e)}), 404
@@ -51,12 +59,12 @@ def get(id):
 @case_bp.route('/cases/byUser', methods=['POST'])
 @jwt_required()
 def list_by_user():
-    
-    data = request.get_json()
-    user = data.get('user')
-    
+    user = get_jwt_identity()
+
     try:
-        data = list_cases_by_user(user)
+        data = list_cases_by_user_service(user)
         return jsonify([n.serialize() for n in data]), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
     except Exception as e:
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500 

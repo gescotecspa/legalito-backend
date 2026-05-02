@@ -1,6 +1,4 @@
-from app import db
 from app.models import Parameter
-from datetime import datetime
 
 class ParameterAlreadyExistsException(Exception):
     pass
@@ -8,8 +6,18 @@ class ParameterAlreadyExistsException(Exception):
 class ParameterNotFoundException(Exception):
     pass
 
-def list_parameters():
+
+def list_parameters_service():
     return Parameter.query.all()
 
-def list_parameters_by_parent(id):
-    return Parameter.query.filter_by(parent_id = id).order_by(Parameter.name.asc()).all()
+
+def list_parameters_by_parent_service(parent_id):
+    return Parameter.query.filter_by(parent_id=parent_id).order_by(Parameter.name.asc()).all()
+
+
+def list_parameters():
+    return list_parameters_service()
+
+
+def list_parameters_by_parent(parent_id):
+    return list_parameters_by_parent_service(parent_id)

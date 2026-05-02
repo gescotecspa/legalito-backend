@@ -1,6 +1,14 @@
-from flask import Blueprint, current_app, request, jsonify,abort
+from flask import Blueprint, current_app, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
-from app.services.assistant_service import list_assistants,list_assistants_by_filter,add_favorite_assitant,list_assistants_favorite,delete_favorite_assistant,get_assistant, AssistantNotFoundException
+from app.services.assistant_service import (
+    AssistantNotFoundException,
+    add_favorite_assistant_service,
+    delete_favorite_assistant_service,
+    get_assistant_service,
+    list_assistants_by_filter_service,
+    list_assistants_favorite_service,
+    list_assistants_service,
+)
 
 assistants_bp = Blueprint('assistants', __name__)
 
@@ -8,7 +16,7 @@ assistants_bp = Blueprint('assistants', __name__)
 @jwt_required()
 def list_all_assistants():
     try:
-        result = list_assistants()
+        result = list_assistants_service()
         return jsonify([f.serialize() for f in result]), 200
     except Exception as e:
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
@@ -17,7 +25,7 @@ def list_all_assistants():
 @jwt_required()
 def list_by_filter(typeId,regionId):
     try:
-        data = list_assistants_by_filter(typeId,regionId)
+        data = list_assistants_by_filter_service(typeId,regionId)
         
         return jsonify(data), 200
     except AssistantNotFoundException as e:
@@ -28,14 +36,15 @@ def list_by_filter(typeId,regionId):
 @assistants_bp.route('/assistants/favorites', methods=['POST'])
 @jwt_required()
 def get_favorite():
-    data = request.get_json()
     user = get_jwt_identity()
 
     try:
-        data = list_assistants_favorite(user)
+        data = list_assistants_favorite_service(user)
         return jsonify(data), 200
     except AssistantNotFoundException as e:
         return jsonify({"error": str(e)}), 404
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
     except Exception as e:
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
     
@@ -43,14 +52,18 @@ def get_favorite():
 @jwt_required()
 def add_favorite ():
     
-    data = request.get_json()
+    data = request.get_json() or {}
     assistantId = data.get('assistantId')
     user = get_jwt_identity()
 
     try:
-        add_favorite_assitant(assistantId,user)
+        add_favorite_assistant_service(assistantId,user)
        
         return jsonify(True), 200
+    except AssistantNotFoundException as e:
+        return jsonify({"error": str(e)}), 404
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
     except Exception as e:
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
     
@@ -58,14 +71,18 @@ def add_favorite ():
 @jwt_required()
 def delete_favorite ():
     
-    data = request.get_json()
+    data = request.get_json() or {}
     assistantId = data.get('assistantId')
     user = get_jwt_identity()
 
     try:
-        delete_favorite_assistant(assistantId,user)
+        delete_favorite_assistant_service(assistantId,user)
        
         return jsonify(True), 200
+    except AssistantNotFoundException as e:
+        return jsonify({"error": str(e)}), 404
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
     except Exception as e:
         current_app.logger.exception("Unexpected error deleting favorite assistant")
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
@@ -73,7 +90,7 @@ def delete_favorite ():
 @assistants_bp.route('/assistants/profile/<int:id>', methods=['GET'])
 @jwt_required()
 def get_assistant_by_id(id):
-    assistant = get_assistant(id)
+    assistant = get_assistant_service(id)
     
     if not assistant:
         return jsonify({"error": "Assistant not found"}), 404

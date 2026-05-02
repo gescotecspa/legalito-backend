@@ -1,4 +1,3 @@
-from app import db
 from app.models import Courthouse
 
 class CourthouseAlreadyExistsException(Exception):
@@ -7,5 +6,10 @@ class CourthouseAlreadyExistsException(Exception):
 class CourthouseNotFoundException(Exception):
     pass
 
-def list_courthouses():
+
+def list_courthouses_service():
     return Courthouse.query.all()
+
+
+def list_courthouses():
+    return list_courthouses_service()

@@ -13,6 +13,11 @@ Tablero simple para seguir trabajo activo del backend sin depender de notas exte
 
 - validar manualmente lectura de mails y envio de eventos `.ics`
 - reemplazar Mailjet como proveedor de envio para recuperacion de contraseña y otros correos salientes
+- definir si `health` e `image` requieren spec minima o se excluyen explicitamente
+- mover Mailjet, IMAP y SMTP/iCalendar a `app/integrations/`
+- definir estrategia minima de pruebas para refactors de arquitectura
+- actualizar mapa tecnico del sistema
+- cerrar plan de ajuste con resumen y riesgos residuales
 
 ## En curso
 
@@ -56,10 +61,26 @@ Tablero simple para seguir trabajo activo del backend sin depender de notas exte
 - definir e implementar estrategia minima de rate limiting para login y recuperacion de contraseña
 - refactorizar vertical `auth` a patron `api -> service -> model/integration`
 - mover `delete-account` al dominio `users` y agregar pruebas basicas
-- mover Mailjet, IMAP y SMTP/iCalendar a `app/integrations/`
-- definir estrategia minima de pruebas para refactors de arquitectura
-- actualizar mapa tecnico del sistema
-- cerrar plan de ajuste con resumen y riesgos residuales
+- homologar dominio `cases`:
+- separar validacion HTTP de logica de aplicacion
+- corregir uso de identidad en `cases/byUser`
+- crear specs `API-XXX` y `UC-XXX`
+- agregar pruebas automatizadas basicas
+- homologar dominio `assistants`:
+- documentar contratos principales
+- agregar pruebas de favoritos, filtro y profile
+- revisar ownership y consistencia de respuestas
+- homologar dominio `folios`:
+- documentar contratos actuales
+- agregar pruebas API basicas de create/list/delete
+- homologar dominios de catalogo `parameters`, `roles` y `courthouses`:
+- crear specs minimas por endpoint
+- agregar pruebas API basicas de lectura
+- validar si requieren autenticacion consistente
+- completar specs pendientes de dominios ya expuestos en `app/api/`:
+- `notifications`
+- `email_accounts`
+- `terms_and_conditions`
 
 ## Notas
 
@@ -70,7 +91,7 @@ Tablero simple para seguir trabajo activo del backend sin depender de notas exte
 - Alembic queda en revision `1b52f91b47e5`
 - `statuses` queda seeded con `active`, `suspended` y `deleted`
 - `terms_and_conditions` queda seeded con version minima `v1`
-- pruebas automatizadas totales actuales: 65 tests verdes con `python -m unittest discover -s tests -p 'test_*.py' -v`
+- pruebas automatizadas totales actuales: 105 tests verdes con `python -m unittest discover -s tests -p 'test_*.py' -v`
 - controles de seguridad ya aplicados:
 - JWT obligatorio en endpoints sensibles
 - `EmailAccount` ya no expone `password`
@@ -87,3 +108,8 @@ Tablero simple para seguir trabajo activo del backend sin depender de notas exte
 - `login` responde `200`
 - `forgot-password` responde `502`
 - `forgot-password` falla porque Mailjet ya no esta disponible como proveedor de envio en QA
+- pendientes de homologacion mas visibles hoy:
+- `mails/events` siguen pendientes de validacion manual real
+- vacios documentales visibles hoy:
+- existen specs para `auth`, `users`, `cases`, `assistants`, `folios`, `parameters`, `roles`, `courthouses`, `events`, `mails`, `notifications`, `email_accounts` y `terms_and_conditions`
+- queda por decidir si `health` e `image` se documentan con spec minima o se excluyen explicitamente
