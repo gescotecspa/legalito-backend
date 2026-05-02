@@ -12,8 +12,6 @@ from app.services.auth_service import (
 )
 from app.services.user_service import (
     EmailAlreadyExistsException,
-    UserNotFoundException as UserServiceUserNotFoundException,
-    delete_user,
     register_user,
 )
 from app.utils.rate_limit import rate_limiter
@@ -160,24 +158,5 @@ def reset_password():
         return jsonify({"error": str(e)}), 404
     except (InvalidResetCodeException, ExpiredResetCodeException) as e:
         return jsonify({"error": str(e)}), 400
-    except Exception as e:
-        return jsonify({"error": f"Error inesperado: {str(e)}"}), 500
-
-@auth_bp.route('/auth/delete-account', methods=['POST'])
-def delete_account():
-    data = request.json
-    email = data.get('email')
-    password = data.get('password')
-
-    if not email or not password:
-        return jsonify({"error": "Email y contraseña son requeridos"}), 400
-
-    try:
-        delete_user(email, password)
-        return jsonify({"message": "Cuenta eliminada exitosamente"}), 200
-    except UserServiceUserNotFoundException:
-        return jsonify({"error": "Usuario no encontrado"}), 404
-    except ValueError as e:
-        return jsonify({"error": str(e)}), 401
     except Exception as e:
         return jsonify({"error": f"Error inesperado: {str(e)}"}), 500

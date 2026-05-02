@@ -1,6 +1,11 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
-from app.services.user_service import list_users, UserNotFoundException, update_user
+from app.services.user_service import (
+    UserNotFoundException,
+    delete_user,
+    list_users,
+    update_user,
+)
 
 users_bp = Blueprint('users', __name__)
 
@@ -22,5 +27,25 @@ def update_user_route(user):
         return jsonify(updated_user.serialize()), 200
     except UserNotFoundException:
         return jsonify({"error": "User not found"}), 404
+    except Exception as e:
+        return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
+
+
+@users_bp.route('/users/delete-account', methods=['POST'])
+def delete_account_route():
+    data = request.json or {}
+    email = data.get('email')
+    password = data.get('password')
+
+    if not email or not password:
+        return jsonify({"error": "Email y contraseña son requeridos"}), 400
+
+    try:
+        delete_user(email, password)
+        return jsonify({"message": "Cuenta eliminada exitosamente"}), 200
+    except UserNotFoundException:
+        return jsonify({"error": "Usuario no encontrado"}), 404
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 401
     except Exception as e:
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500

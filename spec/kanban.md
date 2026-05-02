@@ -55,6 +55,7 @@ Tablero simple para seguir trabajo activo del backend sin depender de notas exte
 - reforzar ownership checks en endpoints por `id` de notifications y email accounts
 - definir e implementar estrategia minima de rate limiting para login y recuperacion de contraseña
 - refactorizar vertical `auth` a patron `api -> service -> model/integration`
+- mover `delete-account` al dominio `users` y agregar pruebas basicas
 - mover Mailjet, IMAP y SMTP/iCalendar a `app/integrations/`
 - definir estrategia minima de pruebas para refactors de arquitectura
 - actualizar mapa tecnico del sistema
@@ -69,7 +70,7 @@ Tablero simple para seguir trabajo activo del backend sin depender de notas exte
 - Alembic queda en revision `1b52f91b47e5`
 - `statuses` queda seeded con `active`, `suspended` y `deleted`
 - `terms_and_conditions` queda seeded con version minima `v1`
-- pruebas automatizadas totales actuales: 62 tests verdes con `python -m unittest discover -s tests -p 'test_*.py' -v`
+- pruebas automatizadas totales actuales: 65 tests verdes con `python -m unittest discover -s tests -p 'test_*.py' -v`
 - controles de seguridad ya aplicados:
 - JWT obligatorio en endpoints sensibles
 - `EmailAccount` ya no expone `password`
