@@ -7,6 +7,10 @@ MAILJET_API_SECRET = os.getenv("MAILJET_API_SECRET")
 MAILJET_SENDER_EMAIL = os.getenv("MAILJET_SENDER_EMAIL")
 
 
+class MailjetDeliveryException(Exception):
+    pass
+
+
 def load_email_template(first_name, reset_code):
     return render_template(
         "emails/reset_password.html",
@@ -29,5 +33,21 @@ def send_reset_email(user_email, user_first_name, reset_code):
         }]
     }
 
-    response = requests.post(url, json=data, headers=headers, auth=(MAILJET_API_KEY, MAILJET_API_SECRET))
-    return {"status": response.status_code, "message": response.json()}
+    response = requests.post(
+        url,
+        json=data,
+        headers=headers,
+        auth=(MAILJET_API_KEY, MAILJET_API_SECRET),
+    )
+
+    try:
+        response_body = response.json()
+    except ValueError:
+        response_body = response.text
+
+    if not response.ok:
+        raise MailjetDeliveryException(
+            f"Mailjet delivery failed with status {response.status_code}: {response_body}"
+        )
+
+    return {"status": response.status_code, "message": response_body}

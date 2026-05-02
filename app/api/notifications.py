@@ -28,9 +28,9 @@ def list_notifications():
 @notifications_bp.route('/notifications/<int:id>', methods=['GET'])
 @jwt_required()
 def get_notification_by_id(id):
+    current_user = get_jwt_identity()
     try:
-    
-        notification = get_notification(id)
+        notification = get_notification(id, current_user)
 
         if not notification:
             return jsonify({"error": "Notification not found"}), 404
@@ -40,12 +40,9 @@ def get_notification_by_id(id):
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
     
 @notifications_bp.route('/notifications/byUser', methods=['POST'])
-#@jwt_required()
+@jwt_required()
 def list_notifications_by_user():
-    #current_user = get_jwt_identity()
-    data = request.get_json()
-    #user = current_user
-    user = data.get('user')
+    user = get_jwt_identity()
     try:
         data = get_notifications_by_user(user)
         return jsonify([n.serialize() for n in data]), 200
@@ -55,8 +52,9 @@ def list_notifications_by_user():
 @notifications_bp.route('/notifications/<int:notification_id>', methods=['DELETE'])
 @jwt_required()
 def remove_notification(notification_id):
+    current_user = get_jwt_identity()
     try:
-        delete_notification(notification_id)
+        delete_notification(notification_id, current_user)
         return jsonify({"message": "Notification deleted successfully."}), 200
     except NotificationNotFoundException as e:
         return jsonify({"error": str(e)}), 404
@@ -66,15 +64,13 @@ def remove_notification(notification_id):
 @notifications_bp.route('/notifications/dismiss', methods=['POST'])
 @jwt_required()
 def dismiss_notifications():
-    #current_user = get_jwt_identity()
+    current_user = get_jwt_identity()
     data = request.get_json()
     
     id = data.get('id')
-    user = data.get('user')
-    #user = current_user
     
     try:
-        result = dismiss(id,user)
+        result = dismiss(id, current_user)
         return jsonify(True), 200
     except NotificationNotFoundException as e:
         return jsonify({"error": str(e)}), 404

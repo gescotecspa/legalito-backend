@@ -6,9 +6,11 @@ from flask import current_app
 class NotificationNotFoundException(Exception):
     pass
 
-def get_notification(_id):
-    result = Notification.query.filter_by(id=_id).first()
-    return result
+def get_notification(notification_id, user=None):
+    filters = {'id': notification_id}
+    if user is not None:
+        filters['user'] = user
+    return Notification.query.filter_by(**filters).first()
 
 def create_notification(data):
     required_fields = ['subject', 'sender', 'received_date']
@@ -40,8 +42,8 @@ def create_notification(data):
 def list_notifications():
     return Notification.query.all()
 
-def delete_notification(notification_id):
-    notification = Notification.query.get(notification_id)
+def delete_notification(notification_id, user=None):
+    notification = get_notification(notification_id, user=user)
     if not notification:
         raise NotificationNotFoundException(f"Notification with id {notification_id} not found.")
 

@@ -12,7 +12,8 @@ class Config:
     }
     
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SECRET_KEY = os.getenv("SECRET_KEY", "supersecretkey")  # Clave secreta para la app Flask
+    SECRET_KEY = os.getenv("SECRET_KEY")  # Clave secreta para la app Flask
+    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", SECRET_KEY)
 
     # Directorio donde se guardarán los archivos .ics para generar eventos sin depender de un proveedor
     ICS_FILES_PATH = os.getenv("ICS_FILES_PATH", "ics_files/")
@@ -33,3 +34,9 @@ class Config:
     MAILJET_SENDER_EMAIL = os.getenv("MAILJET_SENDER_EMAIL")
     
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(seconds=int(os.getenv("JWT_ACCESS_TOKEN_EXPIRES", 10800)))
+    AUTH_LOGIN_RATE_LIMIT_ATTEMPTS = int(os.getenv("AUTH_LOGIN_RATE_LIMIT_ATTEMPTS", 5))
+    AUTH_LOGIN_RATE_LIMIT_WINDOW_SECONDS = int(os.getenv("AUTH_LOGIN_RATE_LIMIT_WINDOW_SECONDS", 300))
+    AUTH_FORGOT_PASSWORD_RATE_LIMIT_ATTEMPTS = int(os.getenv("AUTH_FORGOT_PASSWORD_RATE_LIMIT_ATTEMPTS", 3))
+    AUTH_FORGOT_PASSWORD_RATE_LIMIT_WINDOW_SECONDS = int(os.getenv("AUTH_FORGOT_PASSWORD_RATE_LIMIT_WINDOW_SECONDS", 900))
+    AUTH_RESET_PASSWORD_RATE_LIMIT_ATTEMPTS = int(os.getenv("AUTH_RESET_PASSWORD_RATE_LIMIT_ATTEMPTS", 5))
+    AUTH_RESET_PASSWORD_RATE_LIMIT_WINDOW_SECONDS = int(os.getenv("AUTH_RESET_PASSWORD_RATE_LIMIT_WINDOW_SECONDS", 900))

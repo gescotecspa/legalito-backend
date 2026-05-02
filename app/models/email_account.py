@@ -19,7 +19,6 @@ class EmailAccount(db.Model):
             'provider': self.provider,
             'imap_server': self.imap_server,
             'email_address': self.email_address,
-            'password': self.password,
             'active': self.active,
             'user':self.user
         }

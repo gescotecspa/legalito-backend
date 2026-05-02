@@ -51,6 +51,7 @@ No define nuevas reglas de negocio ni contratos API nuevos.
 - [x] reemplazar `print` por logging consistente en flujos sensibles
 - [x] definir estrategia minima de pruebas para refactors de arquitectura
 - [ ] validar manualmente login, registro, recuperacion de contraseña, lectura de mails y envio de eventos
+- [x] validar tecnicamente recreacion completa de base vacia con migraciones y setup inicial
 - [x] dejar actualizado `spec/context/system-map.md` si cambian modulos o ubicaciones
 - [x] cerrar el plan con resumen de cambios, riesgos residuales y proximos pasos
 
@@ -135,14 +136,24 @@ Estado: diferida para validacion manual posterior.
 
 - falta validacion manual de flujos reales con entorno, base de datos y proveedores configurados
 - no se ejecuto suite automatizada porque no existe una suite Python configurada en el repo
-- no se pudo verificar comandos Flask en este shell porque Flask no esta disponible en el Python actual
 - las integraciones externas se movieron sin cambiar comportamiento, pero requieren prueba manual con credenciales reales o dobles controlados
+- el historial de migraciones fue ajustado para soportar recreacion desde cero, pero conviene seguir simplificandolo cuando exista una suite automatizada
+
+## Validacion tecnica ejecutada
+
+- se implemento el comando `flask --app run.py recreate-db --yes`
+- el comando fue ejecutado con exito sobre la base local `legalito_db`
+- la recreacion completa reconstruyo schema, aplico migraciones y cargo datos base
+- `alembic_version` quedo en `1b52f91b47e5`
+- la tabla `statuses` quedo con `active`, `suspended` y `deleted`
 
 ## Proximos pasos
 
 - ejecutar la validacion manual minima listada en este archivo
 - agregar pruebas unitarias iniciales para `auth_service` y app factory
-- revisar los endpoints que aun mezclan validaciones HTTP con orquestacion de servicios
+- refactorizar endpoints priorizados que aun mezclan validaciones HTTP con orquestacion de servicios:
+- prioridad alta: `mails.read_mails`, `events.create_and_send_event`, `notifications.list_notifications_by_user`
+- prioridad media: `events.list_events_by_user`, `events.edit_event`, `email_accounts.update_account`, `terms_and_conditions.AcceptTermsResource.put`
 - definir si algun criterio de arquitectura ya amerita ADR estable
 
 ## Notas

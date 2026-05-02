@@ -65,6 +65,7 @@ sequenceDiagram
 - La contraseña nunca debe compararse ni exponerse en texto plano.
 - El usuario autenticado recibe un JWT cuyo `identity` corresponde al identificador persistido del usuario.
 - El login exitoso debe actualizar `last_login`.
+- El backend debe aplicar un rate limiting minimo a `login`, `forgot-password` y `reset-password` para reducir abuso automatizado.
 - La respuesta de usuario no debe exponer `password_hash`, `reset_code` ni expiracion del codigo de recuperacion.
 
 ## Postcondiciones
@@ -79,14 +80,18 @@ sequenceDiagram
 - Dado un email inexistente, cuando solicita iniciar sesion, entonces recibe rechazo por credenciales invalidas.
 - Dado un usuario existente con contraseña incorrecta, cuando solicita iniciar sesion, entonces recibe rechazo por credenciales invalidas.
 - Dado un usuario existente sin estado `active`, cuando solicita iniciar sesion, entonces recibe rechazo por cuenta inactiva.
+- Dado multiples intentos consecutivos sobre `login` o recuperacion de contraseña dentro de la misma ventana, cuando supera el limite configurado, entonces recibe `429`.
 - Dado un login exitoso, cuando se serializa el usuario, entonces no se exponen datos sensibles de contraseña o recuperacion.
 
 ## Estado de pruebas
 
-- Unit tests: pendiente
+- Unit tests: parcial
 - Integration tests: pendiente
 - E2E: pendiente
 
 ## Cobertura actual
 
-Sin cobertura automatizada registrada en el repo.
+- `auth_service.login_user` cubre login exitoso, credenciales invalidas y cuenta inactiva.
+- `auth_service.request_password_reset` cubre usuario existente, usuario inexistente y fallo de entrega de correo.
+- `auth_service.reset_password_with_code` cubre caso exitoso, codigo invalido y codigo expirado.
+- `app/api/auth.py` cubre mapeo HTTP basico para login, register, forgot-password y reset-password, incluido `429` por rate limiting.

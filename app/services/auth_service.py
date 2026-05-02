@@ -3,7 +3,10 @@ import secrets
 from app import db
 from app.models import User
 from app.extensions import bcrypt
-from app.integrations.mailjet_email import send_reset_email
+from app.integrations.mailjet_email import (
+    MailjetDeliveryException,
+    send_reset_email,
+)
 from flask_jwt_extended import create_access_token
 
 class InvalidCredentialsException(Exception):
@@ -23,6 +26,10 @@ class InvalidResetCodeException(Exception):
 
 
 class ExpiredResetCodeException(Exception):
+    pass
+
+
+class PasswordResetDeliveryException(Exception):
     pass
 
 
@@ -51,9 +58,14 @@ def request_password_reset(email):
 
     reset_code = str(secrets.randbelow(900000) + 100000)
     user.set_reset_code(reset_code)
-    db.session.commit()
 
-    send_reset_email(user.email, user.first_name, reset_code)
+    try:
+        send_reset_email(user.email, user.first_name, reset_code)
+    except MailjetDeliveryException as exc:
+        db.session.rollback()
+        raise PasswordResetDeliveryException("No se pudo enviar el correo de recuperacion") from exc
+
+    db.session.commit()
     return {"message": "A recovery code has been sent to your email"}
 
 

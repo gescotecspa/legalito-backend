@@ -23,7 +23,7 @@ Ubicar rapidamente los modulos actuales del backend, sus blueprints principales 
 ### Email Accounts y Mails
 
 - blueprints: `app/api/email_accounts.py`, `app/api/mails.py`
-- servicios: `app/services/email_account_service.py`
+- servicios: `app/services/email_account_service.py`, `app/services/mail_service.py`
 - modelos: `app/models/email_account.py`
 - integraciones: `app/integrations/imap_reader.py`, filtro de remitente, creacion de eventos desde correo
 

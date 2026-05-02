@@ -1,31 +1,40 @@
 from flask import Blueprint, request, jsonify,abort
 from flask_jwt_extended import get_jwt_identity, jwt_required
-from app.integrations.smtp_calendar import create_and_send_ics_file
-from app.services.event_service import create_event, delete_event_service, edit_event_service, EventNotFoundException, get_event_by_id_service, list_events_by_user_service
+from app.services.event_service import (
+    EventInvitationDeliveryException,
+    EventNotFoundException,
+    EventOwnershipException,
+    create_event,
+    delete_event_service,
+    edit_event_service,
+    get_event_by_id_service,
+    list_events_by_user_service,
+    send_calendar_invitation,
+)
 
 events_bp = Blueprint('events', __name__)
 
 @events_bp.route('/events/create-and-send-event', methods=['POST'])
 @jwt_required()
 def create_and_send_event():
-    data = request.json
-    title = data.get('title')
-    date = data.get('date')
-    time = data.get('time')
-    location = data.get('location')
-    recipient_email = data.get('recipient_email')
-    description = data.get('description', '')
+    data = request.json or {}
 
-    result = create_and_send_ics_file(
-        title=title,
-        date_str=date,
-        time_str=time,
-        location=location,
-        recipient_email=recipient_email,
-        description=description
-    )
-
-    return jsonify({"result": result})
+    try:
+        result = send_calendar_invitation(
+            title=data.get('title'),
+            date=data.get('date'),
+            time=data.get('time'),
+            location=data.get('location'),
+            recipient_email=data.get('recipient_email'),
+            description=data.get('description', ''),
+        )
+        return jsonify({"result": result}), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except EventInvitationDeliveryException as e:
+        return jsonify({"error": str(e)}), 502
+    except Exception as e:
+        return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
 
 # @events_bp.route('/byuser', methods=['POST'])
@@ -76,25 +85,23 @@ def create_event_api():
 @events_bp.route('/events/byuser', methods=['POST'])
 @jwt_required()
 def list_events_by_user():
-    #current_user = get_jwt_identity()
-    data = request.get_json()
-    user = data.get('user')
+    data = request.get_json() or {}
+    user = get_jwt_identity() or data.get('user')
     try:
         events = list_events_by_user_service(user)
         return jsonify([event.serialize() for event in events]), 200
-    except EventNotFoundException as e:
-        return jsonify({"error": str(e)}), 404
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
     except Exception as e:
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
     
 @events_bp.route('/events/edit/<int:event_id>', methods=['PUT'])
 @jwt_required()
 def edit_event(event_id):
-    current_user = get_jwt_identity()  # Obtener el usuario desde el JWT
-    data = request.get_json()  # Obtener los datos de la solicitud
+    current_user = get_jwt_identity()
+    data = request.get_json() or {}
 
     try:
-        # Llamamos al servicio para editar el evento
         event = edit_event_service(
             event_id=event_id,
             user_id=current_user,
@@ -104,6 +111,10 @@ def edit_event(event_id):
             type_id=data.get('type_id')
         )
         return jsonify(event.serialize()), 200
+    except EventOwnershipException as e:
+        return jsonify({"error": str(e)}), 404
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
     except Exception as e:
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
     

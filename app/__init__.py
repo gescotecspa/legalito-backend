@@ -1,8 +1,11 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from app.extensions import bcrypt, jwt
-from flask_migrate import Migrate
 import logging
+import os
+
+from flask import Flask
+from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
+
+from app.extensions import bcrypt, jwt
 
 
 # Inicializamos SQLAlchemy
@@ -13,6 +16,19 @@ migrate = Migrate()
 def create_app():
     app = Flask(__name__)
     app.config.from_object('config.Config')
+
+    configured_secret_key = os.getenv("SECRET_KEY")
+    if configured_secret_key is not None:
+        app.config["SECRET_KEY"] = configured_secret_key
+
+    if not app.config.get('SECRET_KEY'):
+        raise RuntimeError("SECRET_KEY must be configured")
+
+    configured_jwt_secret = os.getenv("JWT_SECRET_KEY")
+    if configured_jwt_secret is not None:
+        app.config["JWT_SECRET_KEY"] = configured_jwt_secret
+    elif not app.config.get("JWT_SECRET_KEY"):
+        app.config["JWT_SECRET_KEY"] = app.config["SECRET_KEY"]
 
     # Configurar logging para que se muestren todos los logs de Flask
     logging.basicConfig(level=logging.DEBUG)

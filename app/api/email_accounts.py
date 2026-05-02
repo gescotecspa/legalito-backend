@@ -1,7 +1,17 @@
 from flask import Blueprint, current_app, request, jsonify, abort
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from app import db
-from app.services.email_account_service import add_email_account, get_email_account_by_id, get_email_accounts_by_user,list_email_accounts,delete_email_accounts, toggle_email_account_status, update_email_account
+from app.services.email_account_service import (
+    EmailAccountOwnershipException,
+    add_email_account,
+    delete_email_accounts,
+    get_email_account_by_id,
+    get_email_account_by_id_for_user,
+    get_email_accounts_by_user,
+    list_email_accounts,
+    toggle_email_account_status,
+    update_email_account,
+)
 
 email_accounts_bp = Blueprint('email_accounts', __name__)
 
@@ -83,22 +93,37 @@ def toggle_status():
 @email_accounts_bp.route('/email-accounts/<int:id>', methods=['GET'])
 @jwt_required()
 def get_account_by_id(id):
-    account = get_email_account_by_id(id)
-    if account is None:
-        return jsonify({"error": "Account not found"}), 404
-    return jsonify(account.serialize()), 200
+    current_user = get_jwt_identity()
+
+    try:
+        account = get_email_account_by_id_for_user(id, current_user)
+        if account is None:
+            return jsonify({"error": "Account not found"}), 404
+        return jsonify(account.serialize()), 200
+    except EmailAccountOwnershipException as e:
+        return jsonify({"error": str(e)}), 404
 
 
 @email_accounts_bp.route('/email-accounts/<int:id>', methods=['PUT'])
 @jwt_required()
 def update_account(id):
-    data = request.get_json()
-    account = update_email_account(id, data)
+    data = request.get_json() or {}
+    current_user = get_jwt_identity()
 
-    if account is None:
-        return jsonify({"error": "Account not found"}), 404
+    try:
+        account = update_email_account(id, current_user, data)
 
-    return jsonify({
-        "message": "Account successfully updated",
-        "account": account.serialize()
-    }), 200  
+        if account is None:
+            return jsonify({"error": "Account not found"}), 404
+
+        return jsonify({
+            "message": "Account successfully updated",
+            "account": account.serialize()
+        }), 200
+    except EmailAccountOwnershipException as e:
+        return jsonify({"error": str(e)}), 404
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        current_app.logger.exception("Unexpected error updating email account")
+        return jsonify({"error": f"Unexpected error: {str(e)}"}), 500

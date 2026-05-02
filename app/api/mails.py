@@ -1,91 +1,31 @@
-from flask import Blueprint, current_app, jsonify, request
-from flask_jwt_extended import jwt_required
-from app.integrations.imap_reader import read_unread_emails_for_account
-from app.integrations.smtp_calendar import create_and_send_ics_file
-from app.utils.info_extractor import extract_event_info
-from app.services.notification_service import create_notification
-from app.services.email_account_service import get_user_active_email
-from app.services.parameter_service import list_parameters_by_parent
-
-from datetime import datetime
+from flask import Blueprint, jsonify, request
+from flask_jwt_extended import get_jwt_identity, jwt_required
+from app.services.mail_service import (
+    ActiveEmailAccountNotFoundException,
+    MailReadIntegrationException,
+    SenderFilterNotFoundException,
+    read_mails_for_user,
+)
 
 mails_bp = Blueprint('mails', __name__)
 
 @mails_bp.route('/read-mails', methods=['POST'])
-#@jwt_required()
+@jwt_required()
 def read_mails():
-    data = request.get_json()
+    data = request.get_json() or {}
     email_to_check = data.get('email')
-    user = data.get('user')
-    if not email_to_check:
-        return jsonify({"error": "Email parameter is required."}), 400
-    #busamos el remitente autorizado
-    filter = list_parameters_by_parent(32)
-    #Tomar el primer parámetro (si existe)
-    if filter:
-        sender_filter = filter[0].name
-    else:
-        return jsonify({"error": "Email parameter not found."}), 400
+    user = get_jwt_identity()
 
-    #buscamos la cuenta del usuario para consultar las notificaciones
-    account = get_user_active_email(user,email_to_check)
-    
-    if not account:
-        return jsonify({"error": "No active account found with the provided email."}), 404
-
-    emails = read_unread_emails_for_account(
-        imap_server=account.imap_server,
-        email_address=account.email_address,
-        password=account.password,
-        sender=sender_filter
-    )
-
-    extracted_events = []
-    
-#anaizamos los mails recuperados
-    for email_data in emails:
-        subject = email_data.get("subject", "Sin asunto")
-        body = email_data.get("body", "")
-        sender = email_data.get("from", "Desconocido")
-        received_date = email_data.get("date") or datetime.utcnow().isoformat()
-
-        notification_data = {
-            "folio_id": None,
-            "rit": extract_event_info(subject, body).get("rit"),
-            "subject": subject,
-            "sender": sender,
-            "received_date": received_date,
-            "body": body,
-            "marked_as_invitation": "citación" in subject.lower(),
-            "status": "pending",
-            "user":user
-        }
-
-        try:
-            create_notification(notification_data)
-        except Exception as e:
-            current_app.logger.exception("Error creating notification from email")
-            continue
-
-        if sender_filter in sender.lower() and notification_data["marked_as_invitation"]:
-            event_info = extract_event_info(subject, body)
-            if all([event_info.get("date"), event_info.get("time"), event_info.get("title")]):
-                result = create_and_send_ics_file(
-                    title=event_info["title"],
-                    date_str=event_info["date"],
-                    time_str=event_info["time"],
-                    location=event_info.get("location"),
-                    recipient_email=user,
-                    description=event_info["title"]
-                )
-                extracted_events.append({
-                    "email_subject": subject,
-                    "from": sender,
-                    "extracted_info": event_info,
-                    "event_result": result
-                })
-
-    return jsonify({
-        'email_address': account.email_address,
-        'extracted_events': extracted_events
-    })
+    try:
+        result = read_mails_for_user(email_to_check, user)
+        return jsonify(result), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except SenderFilterNotFoundException as e:
+        return jsonify({"error": str(e)}), 400
+    except ActiveEmailAccountNotFoundException as e:
+        return jsonify({"error": str(e)}), 404
+    except MailReadIntegrationException as e:
+        return jsonify({"error": str(e)}), 502
+    except Exception as e:
+        return jsonify({"error": f"Unexpected error: {str(e)}"}), 500

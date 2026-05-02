@@ -1,7 +1,11 @@
 from flask import Blueprint, request
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Api, Resource
-from app.services.terms_and_conditions_service import TermsAndConditionsService
+from app.services.terms_and_conditions_service import (
+    TermsAndConditionsNotFoundException,
+    TermsAndConditionsService,
+    TermsUserNotFoundException,
+)
 
 terms_and_conditions_api__bp = Blueprint('terms_and_conditions_api', __name__)
 api = Api(terms_and_conditions_api__bp)
@@ -46,16 +50,19 @@ class TermsAndConditionsListResource(Resource):
         terms = TermsAndConditionsService.create_terms(data['content'], data['version'])
         return terms.serialize(), 201
 class AcceptTermsResource(Resource):
+    @jwt_required()
     def put(self, user_id):
         try:
-            user = TermsAndConditionsService.accept_terms(user_id)
+            target_user = get_jwt_identity()
+            user = TermsAndConditionsService.accept_terms(target_user)
             return user.serialize(), 200
-        except ValueError as e:
-            return {'message': str(e)}, 400
+        except TermsUserNotFoundException as e:
+            return {'message': str(e)}, 404
+        except TermsAndConditionsNotFoundException as e:
+            return {'message': str(e)}, 409
         except Exception as e:
             return {'message': f'Internal server error: {str(e)}'}, 500
 
 api.add_resource(TermsAndConditionsResource, '/terms/<int:terms_id>')
 api.add_resource(TermsAndConditionsListResource, '/terms')
-api.add_resource(AcceptTermsResource, '/users/<int:user_id>/accept-terms')
-
+api.add_resource(AcceptTermsResource, '/users/<string:user_id>/accept-terms')

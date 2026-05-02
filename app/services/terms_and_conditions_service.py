@@ -5,6 +5,15 @@ from app.models.user import User
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import text
 
+
+class TermsAndConditionsNotFoundException(Exception):
+    pass
+
+
+class TermsUserNotFoundException(Exception):
+    pass
+
+
 class TermsAndConditionsService:
 
     @staticmethod
@@ -31,7 +40,7 @@ class TermsAndConditionsService:
 
     @staticmethod
     def get_terms_by_id(terms_id):
-        return TermsAndConditions.query.get(terms_id)
+        return db.session.get(TermsAndConditions, terms_id)
 
     @staticmethod
     def create_terms(content, version):
@@ -52,7 +61,7 @@ class TermsAndConditionsService:
 
     @staticmethod
     def update_terms(terms_id, content, version):
-        terms = TermsAndConditions.query.get(terms_id)
+        terms = db.session.get(TermsAndConditions, terms_id)
         if terms:
             # Verificar si la versión ya está en uso por otro registro
             existing_terms = TermsAndConditions.query.filter(
@@ -70,7 +79,7 @@ class TermsAndConditionsService:
 
     @staticmethod
     def delete_terms(terms_id):
-        terms = TermsAndConditions.query.get(terms_id)
+        terms = db.session.get(TermsAndConditions, terms_id)
         if terms:
             db.session.delete(terms)
             db.session.commit()
@@ -79,15 +88,15 @@ class TermsAndConditionsService:
 
     @staticmethod
     def accept_terms(user_id):
-        user = User.query.get(user_id)
+        user = db.session.get(User, user_id)
         if not user:
-            raise ValueError("User not found.")
+            raise TermsUserNotFoundException("User not found.")
         
         latest_terms = TermsAndConditionsService.get_latest_version()
         if not latest_terms:
-            raise ValueError("No terms available.")
+            raise TermsAndConditionsNotFoundException("No terms available.")
         
-        user.terms_id = latest_terms.id
-        user.terms_accepted_at = datetime.utcnow()
+        user.terms_and_conditions_id = latest_terms.id
+        user.updated_at = datetime.utcnow()
         db.session.commit()
         return user
