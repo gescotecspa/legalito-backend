@@ -20,6 +20,32 @@ El proyecto actualmente vive en:
 /var/www/legalito-backend
 ```
 
+## Exposicion del backend en QA
+
+Actualmente el backend queda expuesto en dos niveles:
+
+- internamente por `gunicorn` en `127.0.0.1:8000`
+- publicamente a traves de `nginx` bajo `https://api.legalito.cl`
+
+Referencias utiles:
+
+- health interno:
+
+```bash
+http://127.0.0.1:8000/api/health
+```
+
+- health publico:
+
+```bash
+https://api.legalito.cl/api/health
+```
+
+Esto permite distinguir entre:
+
+- problema de aplicacion o `gunicorn`
+- problema de proxy/reverse proxy o TLS
+
 ## Contexto de despliegue en QA
 
 Actualmente QA debe considerarse desplegado con estas piezas:
@@ -81,6 +107,12 @@ WorkingDirectory=/var/www/legalito-backend
 EnvironmentFile=/etc/legalito.env
 ExecStart=/var/www/legalito-backend/venv/bin/gunicorn -w 4 -b 127.0.0.1:8000 "app:create_app()"
 ```
+
+Referencia operativa de exposicion:
+
+- `systemd`: `legalito.service`
+- backend interno: `127.0.0.1:8000`
+- dominio publico esperado: `https://api.legalito.cl`
 
 ## Flujo recomendado
 
@@ -217,6 +249,13 @@ Validar manualmente:
 - `reset-password`
 - lectura de mails
 - envío de eventos `.ics`
+
+Checks recomendados:
+
+```bash
+curl -i http://127.0.0.1:8000/api/health
+curl -i https://api.legalito.cl/api/health
+```
 
 ## Troubleshooting rápido
 
