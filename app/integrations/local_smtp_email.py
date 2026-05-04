@@ -9,6 +9,12 @@ class LocalSmtpDeliveryException(Exception):
     pass
 
 
+def _smtp_client_class():
+    if current_app.config.get("SMTP_USE_SSL"):
+        return smtplib.SMTP_SSL
+    return smtplib.SMTP
+
+
 def load_reset_email_template(first_name, reset_code):
     return render_template(
         "emails/reset_password.html",
@@ -40,8 +46,11 @@ def send_reset_email(user_email, user_first_name, reset_code):
     msg.attach(MIMEText(email_html, "html", "utf-8"))
 
     try:
-        with smtplib.SMTP(smtp_server, smtp_port) as server:
-            server.starttls()
+        smtp_client_class = _smtp_client_class()
+
+        with smtp_client_class(smtp_server, smtp_port) as server:
+            if current_app.config.get("SMTP_USE_TLS") and not current_app.config.get("SMTP_USE_SSL"):
+                server.starttls()
             server.login(smtp_username, smtp_password)
             server.sendmail(sender_email, [user_email], msg.as_string())
     except Exception as exc:

@@ -2,7 +2,7 @@
 
 ## Estado
 
-Implementacion inicial parcial
+Implementacion inicial en uso para recuperacion de contrasena
 
 ## Objetivo
 
@@ -16,6 +16,8 @@ Se adopta un unico parametro de configuracion para seleccionar el mecanismo de e
 EMAIL_DELIVERY_METHOD=local
 ```
 
+`local` pasa a ser el valor preferido y por defecto para nuevos entornos.
+
 Valores validos iniciales:
 
 - `local`
@@ -28,6 +30,7 @@ Valores validos iniciales:
 - usa SMTP autenticado configurado en el entorno
 - pensado para entornos donde existe relay SMTP utilizable o para desarrollo controlado
 - implementado para recuperacion de contraseña
+- soporta `STARTTLS` por defecto y `SSL` directo por configuracion cuando el servidor SMTP lo requiera
 
 ### `api`
 
@@ -67,6 +70,8 @@ SMTP_PORT=587
 SMTP_USERNAME=...
 SMTP_PASSWORD=...
 SMTP_DEFAULT_SENDER=...
+SMTP_USE_TLS=true
+SMTP_USE_SSL=false
 ```
 
 ### Si `EMAIL_DELIVERY_METHOD=api`

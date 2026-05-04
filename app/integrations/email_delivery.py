@@ -15,7 +15,7 @@ class EmailDeliveryException(Exception):
 
 
 def get_email_delivery_method():
-    return (current_app.config.get("EMAIL_DELIVERY_METHOD") or "api").strip().lower()
+    return (current_app.config.get("EMAIL_DELIVERY_METHOD") or "local").strip().lower()
 
 
 def send_reset_email(user_email, user_first_name, reset_code):

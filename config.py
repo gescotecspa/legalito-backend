@@ -19,12 +19,14 @@ class Config:
     ICS_FILES_PATH = os.getenv("ICS_FILES_PATH", "ics_files/")
 
     # Configuración SMTP para envío de correos
-    EMAIL_DELIVERY_METHOD = os.getenv("EMAIL_DELIVERY_METHOD", "api")
+    EMAIL_DELIVERY_METHOD = os.getenv("EMAIL_DELIVERY_METHOD", "local")
     SMTP_SERVER = os.getenv("SMTP_SERVER", "smtp.gmail.com")
     SMTP_PORT = int(os.getenv("SMTP_PORT", 587))
     SMTP_USERNAME = os.getenv("SMTP_USERNAME")
     SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
     SMTP_DEFAULT_SENDER = os.getenv("SMTP_DEFAULT_SENDER")
+    SMTP_USE_TLS = os.getenv("SMTP_USE_TLS", "true").strip().lower() in {"1", "true", "yes", "on"}
+    SMTP_USE_SSL = os.getenv("SMTP_USE_SSL", "false").strip().lower() in {"1", "true", "yes", "on"}
 
     # Mail remitente válido para filtrar correos a procesar
     ALLOWED_SENDER = os.getenv("ALLOWED_SENDER")

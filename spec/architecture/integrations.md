@@ -2,7 +2,7 @@
 
 ## Integraciones detectadas
 
-- Mailjet para correo transaccional de recuperacion de contraseña
+- SMTP propio para correo transaccional de recuperacion de contraseña
 - SMTP para envio de invitaciones de calendario con `.ics`
 - IMAP para lectura de correos externos asociados a usuarios
 
@@ -10,7 +10,9 @@
 
 Las integraciones externas deben vivir en `app/integrations/`.
 
-- Mailjet: `app/integrations/mailjet_email.py`
+- selector de entrega: `app/integrations/email_delivery.py`
+- SMTP reset email: `app/integrations/local_smtp_email.py`
+- proveedor HTTP legado: `app/integrations/mailjet_email.py`
 - SMTP/iCalendar: `app/integrations/smtp_calendar.py`
 - IMAP: `app/integrations/imap_reader.py`
 
@@ -39,5 +41,5 @@ Resumen:
 
 - parametro unico inicial: `EMAIL_DELIVERY_METHOD`
 - valores esperados: `local` o `api`
-- `local` usa SMTP autenticado
+- `local` usa SMTP autenticado y es la opcion por defecto
 - `api` usa proveedor HTTP externo

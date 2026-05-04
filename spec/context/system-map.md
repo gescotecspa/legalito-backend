@@ -21,7 +21,7 @@ Este criterio queda formalizado en [ADR-001-separacion-de-capas-y-bootstrap-expl
 - blueprints: `app/api/auth.py`
 - servicios: `app/services/auth_service.py`, `app/services/user_service.py`
 - modelos: `app/models/user.py`, `app/models/status.py`
-- integraciones: JWT, Bcrypt, `app/integrations/mailjet_email.py`
+- integraciones: JWT, Bcrypt, `app/integrations/email_delivery.py`
 - contratos documentados: `spec/apis/auth/`, `spec/use-cases/auth/`
 
 ### Users
@@ -122,7 +122,9 @@ Este criterio queda formalizado en [ADR-001-separacion-de-capas-y-bootstrap-expl
 - base de datos relacional via SQLAlchemy
 - migraciones Alembic
 - JWT para autenticacion
-- Mailjet para mails transaccionales en `app/integrations/mailjet_email.py`
+- selector de entrega de correo en `app/integrations/email_delivery.py`
+- SMTP propio para correos transaccionales e invitaciones de calendario
+- proveedor HTTP legado opcional en `app/integrations/mailjet_email.py`
 - SMTP para invitaciones de calendario en `app/integrations/smtp_calendar.py`
 - IMAP para lectura de correos en `app/integrations/imap_reader.py`
 
@@ -130,7 +132,7 @@ Este criterio queda formalizado en [ADR-001-separacion-de-capas-y-bootstrap-expl
 
 - el patron `api -> service -> model/integration` ya fue aplicado en los dominios mas sensibles del backend
 - la mayoria de dominios funcionales ya tiene carpeta propia en `spec/apis/` y `spec/use-cases/`
-- los pendientes mas importantes ya no son de estructura base, sino de validacion manual de integraciones y reemplazo de Mailjet
+- los pendientes mas importantes ya no son de estructura base, sino de validacion manual de integraciones y cierre del reemplazo definitivo del proveedor `api`
 
 ## Uso recomendado
 

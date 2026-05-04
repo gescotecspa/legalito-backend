@@ -90,14 +90,21 @@ Variables mínimas a revisar:
 - `DATABASE_URL`
 - `SECRET_KEY`
 - `JWT_SECRET_KEY`
-- `MAILJET_API_KEY`
-- `MAILJET_API_SECRET`
-- `MAILJET_SENDER_EMAIL`
+- `EMAIL_DELIVERY_METHOD`
 - `SMTP_SERVER`
 - `SMTP_PORT`
 - `SMTP_USERNAME`
 - `SMTP_PASSWORD`
+- `SMTP_DEFAULT_SENDER`
+- `SMTP_USE_TLS`
+- `SMTP_USE_SSL`
 - `ALLOWED_SENDER`
+
+Si `EMAIL_DELIVERY_METHOD=api`, revisar además:
+
+- `MAILJET_API_KEY`
+- `MAILJET_API_SECRET`
+- `MAILJET_SENDER_EMAIL`
 
 Referencia de servicio actual:
 
@@ -196,7 +203,7 @@ echo "$JWT_SECRET_KEY"
 ### 8. Revisar configuración crítica
 
 ```bash
-grep -E "^(DATABASE_URL|SECRET_KEY|JWT_SECRET_KEY|MAILJET_|SMTP_|ALLOWED_SENDER)" /etc/legalito.env
+grep -E "^(DATABASE_URL|SECRET_KEY|JWT_SECRET_KEY|EMAIL_DELIVERY_METHOD|MAILJET_|SMTP_|ALLOWED_SENDER)" /etc/legalito.env
 ```
 
 Si falta `SECRET_KEY` o `DATABASE_URL`, el backend no debería arrancar correctamente.

@@ -11,8 +11,11 @@ Tablero simple para seguir trabajo activo del backend sin depender de notas exte
 
 ## Todo
 
+- publicar en QA o entorno correspondiente los ultimos cambios ya subidos al repo
+- agregar/ajustar variables de entorno requeridas para habilitar SMTP propio antes del proximo deploy
 - validar manualmente lectura de mails y envio de eventos `.ics`
-- reemplazar Mailjet como proveedor de envio para recuperacion de contraseña y otros correos salientes
+- validar manualmente recuperacion de contraseña usando SMTP propio
+- dejar el reemplazo del proveedor `api` actual de correo saliente (hoy Mailjet) como segundo frente separado
 
 ## En curso
 
