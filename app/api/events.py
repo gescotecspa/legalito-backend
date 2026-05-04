@@ -133,12 +133,10 @@ def delete_event(event_id):
 @events_bp.route('/events/<int:event_id>', methods=['GET'])
 @jwt_required()
 def get_event_by_id(event_id):
-    """
-    Endpoint para obtener un evento por su ID.
-    """
+    current_user = get_jwt_identity()
+
     try:
-        # Llamamos al servicio que busca el evento por ID
-        event = get_event_by_id_service(event_id)
+        event = get_event_by_id_service(event_id, current_user)
         return jsonify(event.serialize()), 200
     except EventNotFoundException as e:
         return jsonify({"error": str(e)}), 404

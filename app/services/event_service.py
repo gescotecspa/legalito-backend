@@ -85,12 +85,14 @@ def list_events_by_user_service(user_id):
     events = Event.query.filter_by(user=user_id).order_by(asc(Event.start_date)).all()
     return events
 
-def get_event_by_id_service(event_id):
-    event = Event.query.get(event_id)
-    
+def get_event_by_id_service(event_id, user_id):
+    event = Event.query.filter_by(id=event_id, user=user_id).first()
+
     if event is None:
-        raise EventNotFoundException(f"Evento con ID {event_id} no encontrado.")
-    
+        raise EventNotFoundException(
+            f"Evento con ID {event_id} no encontrado para el usuario autenticado."
+        )
+
     return event
 
 

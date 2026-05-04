@@ -133,6 +133,7 @@ Este criterio queda formalizado en [ADR-001-separacion-de-capas-y-bootstrap-expl
 - el patron `api -> service -> model/integration` ya fue aplicado en los dominios mas sensibles del backend
 - la mayoria de dominios funcionales ya tiene carpeta propia en `spec/apis/` y `spec/use-cases/`
 - los pendientes mas importantes ya no son de estructura base, sino de validacion manual de integraciones y cierre del reemplazo definitivo del proveedor `api`
+- la recuperacion de contraseña ya fue validada en QA con SMTP propio; sigue pendiente extender y validar el resto de integraciones de correo
 
 ## Uso recomendado
 

@@ -4,6 +4,8 @@
 
 Implementacion inicial en uso para recuperacion de contrasena
 
+Validada manualmente en QA el 2026-05-04 usando SMTP propio.
+
 ## Objetivo
 
 Definir una estrategia simple y consistente para que el backend pueda enviar correos usando un metodo configurable por entorno, evitando acoplar los servicios de negocio a un proveedor especifico.
@@ -108,3 +110,20 @@ MAILJET_SENDER_EMAIL=...
 - extender la misma abstraccion a mas correos salientes cuando corresponda
 - reemplazar Mailjet por el proveedor API definitivo cuando quede decidido
 - mantener `smtp_calendar.py` e integraciones futuras alineadas al mismo criterio cuando corresponda
+
+## Validacion manual reciente
+
+- fecha: `2026-05-04`
+- entorno: `QA`
+- commit desplegado: `2f1fc9d`
+- configuracion usada:
+  - `EMAIL_DELIVERY_METHOD=local`
+  - `SMTP_SERVER=a0011282.ferozo.com`
+  - `SMTP_PORT=587`
+  - `SMTP_USERNAME=soporte@legalito.cl`
+  - `SMTP_DEFAULT_SENDER=soporte@legalito.cl`
+  - `SMTP_USE_TLS=true`
+  - `SMTP_USE_SSL=false`
+- resultado:
+  - `POST /api/auth/forgot-password` responde `200`
+  - el correo de recuperacion llega correctamente a `mceliz@gmail.com`

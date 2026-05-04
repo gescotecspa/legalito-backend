@@ -11,11 +11,35 @@ Tablero simple para seguir trabajo activo del backend sin depender de notas exte
 
 ## Todo
 
-- publicar en QA o entorno correspondiente los ultimos cambios ya subidos al repo
-- agregar/ajustar variables de entorno requeridas para habilitar SMTP propio antes del proximo deploy
 - validar manualmente lectura de mails y envio de eventos `.ics`
-- validar manualmente recuperacion de contraseña usando SMTP propio
+- validar flujo real `mails -> notifications -> events` con cuentas y correos reales
 - dejar el reemplazo del proveedor `api` actual de correo saliente (hoy Mailjet) como segundo frente separado
+- completar specs API faltantes del dominio `events`:
+- `GET /api/events/<id>`
+- `DELETE /api/events/delete/<id>`
+- `POST /api/events/create`
+- completar casos de uso faltantes del dominio `events`:
+- crear evento persistido
+- listar eventos persistidos
+- editar evento persistido
+- eliminar evento persistido
+- cerrar gaps pendientes del dominio `cases`:
+- definir si `GET /cases/list` se implementa o se descarta formalmente
+- agregar specs y pruebas de `GET /cases/list` si se mantiene
+- documentar decision sobre `PUT /cases` y `GET /cases/<id>` que hoy siguen no implementados
+- completar casos de uso faltantes del dominio `cases`:
+- crear causa
+- eliminar causa
+- completar casos de uso faltantes del dominio `folios`:
+- listado de folios
+- eliminacion de folios
+- documentar manejo de imagen de perfil en el dominio `users`
+- validar manualmente dominios ya homologados que aun no tienen cierre funcional:
+- `assistants`
+- `users`
+- `folios`
+- revisar autenticacion/autorizacion del endpoint `POST /api/terms` y dejar decision documentada
+- definir si se incorporan pruebas de integracion o E2E para `auth`
 
 ## En curso
 
@@ -86,6 +110,9 @@ Tablero simple para seguir trabajo activo del backend sin depender de notas exte
 - definir estrategia minima de pruebas para refactors de arquitectura
 - definir estrategia simple de entrega de correo por parametro global
 - implementar seleccion de entrega de correo por `EMAIL_DELIVERY_METHOD` con soporte `local|api`
+- publicar en QA los cambios para priorizar SMTP propio
+- agregar variables de entorno SMTP requeridas en QA
+- validar manualmente recuperacion de contraseña usando SMTP propio en QA
 
 ## Notas
 
@@ -113,6 +140,11 @@ Tablero simple para seguir trabajo activo del backend sin depender de notas exte
 - `login` responde `200`
 - `forgot-password` responde `502`
 - `forgot-password` falla porque Mailjet ya no esta disponible como proveedor de envio en QA
+- validacion manual SMTP en QA el 2026-05-04:
+- deploy aplicado con commit `2f1fc9d`
+- `/etc/legalito.env` queda configurado con `EMAIL_DELIVERY_METHOD=local`
+- `forgot-password` responde `200` para `mceliz@gmail.com`
+- el correo de recuperacion llega correctamente con codigo de 6 digitos
 - pendientes de homologacion mas visibles hoy:
 - `mails/events` siguen pendientes de validacion manual real
 - vacios documentales visibles hoy:
@@ -129,4 +161,5 @@ Tablero simple para seguir trabajo activo del backend sin depender de notas exte
 - se adopta un unico parametro inicial `EMAIL_DELIVERY_METHOD` con valores `local` o `api`
 - estado actual de implementacion:
 - `EMAIL_DELIVERY_METHOD=local` ya soporta recuperacion de contraseña via SMTP autenticado
+- QA ya fue validado con `EMAIL_DELIVERY_METHOD=local` y credenciales SMTP propias
 - `EMAIL_DELIVERY_METHOD=api` mantiene compatibilidad con la integracion actual basada en Mailjet

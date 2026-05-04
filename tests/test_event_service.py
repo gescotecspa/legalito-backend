@@ -13,8 +13,10 @@ from app.models.terms_and_conditions import TermsAndConditions
 from app.models.user import User
 from app.services.event_service import (
     EventInvitationDeliveryException,
+    EventNotFoundException,
     EventOwnershipException,
     edit_event_service,
+    get_event_by_id_service,
     list_events_by_user_service,
     send_calendar_invitation,
 )
@@ -121,3 +123,13 @@ class EventServiceTests(unittest.TestCase):
                 user_id=self.user_id,
                 start_date="invalid-date",
             )
+
+    def test_get_event_by_id_service_when_event_belongs_to_user_returns_event(self):
+        event = get_event_by_id_service(self.event.id, self.user_id)
+
+        self.assertEqual(event.id, self.event.id)
+        self.assertEqual(event.user, self.user_id)
+
+    def test_get_event_by_id_service_when_event_does_not_belong_to_user_raises_not_found(self):
+        with self.assertRaises(EventNotFoundException):
+            get_event_by_id_service(self.event.id, "other-user@example.com")

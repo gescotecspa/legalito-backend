@@ -257,6 +257,29 @@ Validar manualmente:
 - lectura de mails
 - envío de eventos `.ics`
 
+### 13. Validacion especifica de SMTP propio
+
+Si QA opera con `EMAIL_DELIVERY_METHOD=local`, validar al menos este flujo:
+
+```bash
+curl -i -X POST https://api.legalito.cl/api/auth/forgot-password \
+  -H "Content-Type: application/json" \
+  -d '{"email":"mceliz@gmail.com"}'
+```
+
+Resultado esperado:
+
+- respuesta `200 OK`
+- mensaje `A recovery code has been sent to your email`
+- recepcion efectiva del correo en la casilla destino
+
+Referencia validada:
+
+- fecha: `2026-05-04`
+- commit: `2f1fc9d`
+- SMTP: `a0011282.ferozo.com:587`
+- modo: `STARTTLS`
+
 Checks recomendados:
 
 ```bash
