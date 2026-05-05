@@ -14,6 +14,10 @@ from app.services.user_service import (
     EmailAlreadyExistsException,
     register_user,
 )
+from app.services.terms_and_conditions_service import (
+    TermsAndConditionsNotFoundException,
+    TermsVersionMismatchException,
+)
 from app.utils.rate_limit import rate_limiter
 
 auth_bp = Blueprint('auth', __name__)
@@ -91,15 +95,40 @@ def register():
     password = data.get('password')
     first_name = data.get('firstName')
     last_name = data.get('lastName')
+    terms_id = data.get('terms_id')
+    terms_version = data.get('terms_version')
+    accepted_terms = data.get('accepted_terms')
 
-    if not email or not password:
-        return jsonify({"error": "Email and password are required"}), 400
+    if (
+        not email
+        or not password
+        or terms_id is None
+        or not terms_version
+        or accepted_terms is None
+    ):
+        return jsonify(
+            {"error": "Email, password, terms_id, terms_version and accepted_terms are required"}
+        ), 400
     
     try:
-        user = register_user(email, password, first_name, last_name)
+        user = register_user(
+            email,
+            password,
+            first_name,
+            last_name,
+            terms_id,
+            terms_version,
+            accepted_terms,
+        )
         return jsonify({"message": "User successfully registered", "user": user}), 201
     except EmailAlreadyExistsException as e:
         return jsonify({"error": str(e)}), 409
+    except TermsAndConditionsNotFoundException as e:
+        return jsonify({"error": str(e)}), 409
+    except TermsVersionMismatchException as e:
+        return jsonify({"error": str(e)}), 409
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
     except Exception as e:
         return jsonify({"error": f"Error inesperado: {str(e)}"}), 500
     

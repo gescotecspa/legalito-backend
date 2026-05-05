@@ -14,15 +14,6 @@ Tablero simple para seguir trabajo activo del backend sin depender de notas exte
 - validar manualmente lectura de mails y envio de eventos `.ics`
 - validar flujo real `mails -> notifications -> events` con cuentas y correos reales
 - dejar el reemplazo del proveedor `api` actual de correo saliente (hoy Mailjet) como segundo frente separado
-- completar specs API faltantes del dominio `events`:
-- `GET /api/events/<id>`
-- `DELETE /api/events/delete/<id>`
-- `POST /api/events/create`
-- completar casos de uso faltantes del dominio `events`:
-- crear evento persistido
-- listar eventos persistidos
-- editar evento persistido
-- eliminar evento persistido
 - cerrar gaps pendientes del dominio `cases`:
 - definir si `GET /cases/list` se implementa o se descarta formalmente
 - agregar specs y pruebas de `GET /cases/list` si se mantiene
@@ -113,6 +104,8 @@ Tablero simple para seguir trabajo activo del backend sin depender de notas exte
 - publicar en QA los cambios para priorizar SMTP propio
 - agregar variables de entorno SMTP requeridas en QA
 - validar manualmente recuperacion de contraseña usando SMTP propio en QA
+- completar documentacion faltante del dominio `events`
+- reforzar ownership de `GET /api/events/<id>` para que respete usuario autenticado
 
 ## Notas
 
@@ -145,6 +138,10 @@ Tablero simple para seguir trabajo activo del backend sin depender de notas exte
 - `/etc/legalito.env` queda configurado con `EMAIL_DELIVERY_METHOD=local`
 - `forgot-password` responde `200` para `mceliz@gmail.com`
 - el correo de recuperacion llega correctamente con codigo de 6 digitos
+- validacion manual adicional `auth` en QA el 2026-05-04:
+- creacion de usuario desde la app validada
+- recuperacion de contraseña por SMTP validada
+- autenticacion/login validado con credenciales reales
 - pendientes de homologacion mas visibles hoy:
 - `mails/events` siguen pendientes de validacion manual real
 - vacios documentales visibles hoy:

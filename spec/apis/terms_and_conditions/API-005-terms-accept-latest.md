@@ -6,12 +6,12 @@ Borrador
 
 ## Objetivo
 
-Describir el contrato tecnico del endpoint que marca al usuario autenticado con la ultima version de terminos disponible.
+Describir el contrato tecnico del endpoint que marca al usuario autenticado con la ultima version vigente de terminos, validando el `terms_id` recibido desde el cliente.
 
 ## Endpoint
 
 - metodo: `PUT`
-- ruta: `/api/users/<user_id>/accept-terms`
+- ruta: `/api/terms/accept`
 
 ## Autenticacion
 
@@ -22,7 +22,9 @@ Describir el contrato tecnico del endpoint que marca al usuario autenticado con 
 ### Body
 
 ```json
-{}
+{
+  "terms_id": 2
+}
 ```
 
 ## Response esperada
@@ -38,13 +40,16 @@ Describir el contrato tecnico del endpoint que marca al usuario autenticado con 
 
 ## Errores esperados
 
+- `400`: falta `terms_id`
 - `401`: no autenticado
 - `404`: usuario inexistente
 - `409`: no hay terminos disponibles
+- `409`: `terms_id` no corresponde a la ultima version vigente
 - `500`: error inesperado
 
 ## Notas tecnicas
 
 - delega a `TermsAndConditionsService.accept_terms`
-- ignora el `user_id` de la ruta y usa la identidad JWT
+- usa la identidad JWT como unica fuente de usuario
+- exige `terms_id` en el body para validar que el cliente este aceptando la version vigente visible en frontend
 - tiene coverage automatizada basica para `401`, `404`, `409` y uso de identidad autenticada

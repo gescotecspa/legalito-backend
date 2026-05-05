@@ -14,6 +14,10 @@ class TermsUserNotFoundException(Exception):
     pass
 
 
+class TermsVersionMismatchException(Exception):
+    pass
+
+
 class TermsAndConditionsService:
 
     @staticmethod
@@ -87,7 +91,7 @@ class TermsAndConditionsService:
         return False
 
     @staticmethod
-    def accept_terms(user_id):
+    def accept_terms(user_id, terms_id):
         user = db.session.get(User, user_id)
         if not user:
             raise TermsUserNotFoundException("User not found.")
@@ -95,6 +99,11 @@ class TermsAndConditionsService:
         latest_terms = TermsAndConditionsService.get_latest_version()
         if not latest_terms:
             raise TermsAndConditionsNotFoundException("No terms available.")
+
+        if latest_terms.id != terms_id:
+            raise TermsVersionMismatchException(
+                "The provided terms_id does not match the latest published terms."
+            )
         
         user.terms_and_conditions_id = latest_terms.id
         user.updated_at = datetime.utcnow()

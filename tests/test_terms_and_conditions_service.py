@@ -13,6 +13,7 @@ from app.services.terms_and_conditions_service import (
     TermsAndConditionsNotFoundException,
     TermsAndConditionsService,
     TermsUserNotFoundException,
+    TermsVersionMismatchException,
 )
 
 
@@ -69,18 +70,27 @@ class TermsAndConditionsServiceTests(unittest.TestCase):
         self.ctx.pop()
 
     def test_accept_terms_when_user_exists_updates_latest_terms(self):
-        updated_user = TermsAndConditionsService.accept_terms(self.user.user)
+        updated_user = TermsAndConditionsService.accept_terms(
+            self.user.user,
+            self.latest_terms_id,
+        )
 
         self.assertEqual(updated_user.terms_and_conditions_id, self.latest_terms_id)
         self.assertIsNotNone(updated_user.updated_at)
 
     def test_accept_terms_when_user_does_not_exist_raises_user_not_found(self):
         with self.assertRaises(TermsUserNotFoundException):
-            TermsAndConditionsService.accept_terms("missing@example.com")
+            TermsAndConditionsService.accept_terms("missing@example.com", self.latest_terms_id)
 
     def test_accept_terms_when_no_terms_exist_raises_terms_not_found(self):
         db.session.query(TermsAndConditions).delete()
         db.session.commit()
 
         with self.assertRaises(TermsAndConditionsNotFoundException):
-            TermsAndConditionsService.accept_terms(self.user.user)
+            TermsAndConditionsService.accept_terms(self.user.user, self.latest_terms_id)
+
+    def test_accept_terms_when_terms_id_is_not_latest_raises_version_mismatch(self):
+        old_terms_id = self.user.terms_and_conditions_id
+
+        with self.assertRaises(TermsVersionMismatchException):
+            TermsAndConditionsService.accept_terms(self.user.user, old_terms_id)

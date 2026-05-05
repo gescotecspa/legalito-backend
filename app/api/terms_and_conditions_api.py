@@ -4,6 +4,7 @@ from flask_restful import Api, Resource
 from app.services.terms_and_conditions_service import (
     TermsAndConditionsNotFoundException,
     TermsAndConditionsService,
+    TermsVersionMismatchException,
     TermsUserNotFoundException,
 )
 
@@ -51,18 +52,25 @@ class TermsAndConditionsListResource(Resource):
         return terms.serialize(), 201
 class AcceptTermsResource(Resource):
     @jwt_required()
-    def put(self, user_id):
+    def put(self):
         try:
+            data = request.get_json(silent=True) or {}
+            terms_id = data.get("terms_id")
+            if terms_id is None:
+                return {'message': 'Missing required field: terms_id'}, 400
+
             target_user = get_jwt_identity()
-            user = TermsAndConditionsService.accept_terms(target_user)
+            user = TermsAndConditionsService.accept_terms(target_user, terms_id)
             return user.serialize(), 200
         except TermsUserNotFoundException as e:
             return {'message': str(e)}, 404
         except TermsAndConditionsNotFoundException as e:
+            return {'message': str(e)}, 409
+        except TermsVersionMismatchException as e:
             return {'message': str(e)}, 409
         except Exception as e:
             return {'message': f'Internal server error: {str(e)}'}, 500
 
 api.add_resource(TermsAndConditionsResource, '/terms/<int:terms_id>')
 api.add_resource(TermsAndConditionsListResource, '/terms')
-api.add_resource(AcceptTermsResource, '/users/<string:user_id>/accept-terms')
+api.add_resource(AcceptTermsResource, '/terms/accept')

@@ -3,7 +3,11 @@ from app import db
 from app.models import User
 from app.extensions import bcrypt
 from app.models.status import Status
-from app.services.terms_and_conditions_service import TermsAndConditionsService
+from app.services.terms_and_conditions_service import (
+    TermsAndConditionsNotFoundException,
+    TermsAndConditionsService,
+    TermsVersionMismatchException,
+)
 from app.utils.image_handler import save_base64_image
 from datetime import datetime, timezone
 
@@ -19,20 +23,37 @@ class EmailAlreadyExistsException(Exception):
 def list_users():
     return User.query.all()
 
-def register_user(email, password, first_name, last_name):
+def register_user(
+    email,
+    password,
+    first_name,
+    last_name,
+    terms_id,
+    terms_version,
+    accepted_terms,
+):
     existing_user = User.query.filter_by(email=email).first()
     if existing_user:
         raise EmailAlreadyExistsException("El email ya está registrado")
+    if accepted_terms is not True:
+        raise ValueError("Terms must be explicitly accepted")
 
     active_status = Status.query.filter_by(code='active').first()
     if not active_status:
         raise ValueError("El estado 'Activo' no existe en la base de datos")
     
     hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-    # Obtener los términos y condiciones más recientes
     latest_terms = TermsAndConditionsService.get_latest_version()
     if not latest_terms:
-        raise ValueError("No terms and conditions available")
+        raise TermsAndConditionsNotFoundException("No terms and conditions available")
+    if latest_terms.id != terms_id:
+        raise TermsVersionMismatchException(
+            "The provided terms_id does not match the latest published terms."
+        )
+    if latest_terms.version != terms_version:
+        raise TermsVersionMismatchException(
+            "The provided terms_version does not match the latest published terms."
+        )
     
     user = User(
         user= email,

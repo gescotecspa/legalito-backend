@@ -16,6 +16,10 @@ from app.services.auth_service import (
     UserNotFoundException as AuthUserNotFoundException,
 )
 from app.services.user_service import EmailAlreadyExistsException
+from app.services.terms_and_conditions_service import (
+    TermsAndConditionsNotFoundException,
+    TermsVersionMismatchException,
+)
 from app.utils.rate_limit import rate_limiter
 
 
@@ -123,11 +127,131 @@ class AuthApiTests(unittest.TestCase):
                 "password": "secret123",
                 "firstName": "Ada",
                 "lastName": "Lovelace",
+                "terms_id": 1,
+                "terms_version": "v1",
+                "accepted_terms": True,
             },
         )
 
         self.assertEqual(response.status_code, 409)
         self.assertEqual(response.get_json()["error"], "El email ya está registrado")
+
+    def test_register_when_terms_fields_are_missing_returns_bad_request(self):
+        response = self.client.post(
+            "/api/auth/register",
+            json={
+                "email": "user@example.com",
+                "password": "secret123",
+                "firstName": "Ada",
+                "lastName": "Lovelace",
+            },
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.get_json()["error"],
+            "Email, password, terms_id, terms_version and accepted_terms are required",
+        )
+
+    @patch(
+        "app.api.auth.register_user",
+        side_effect=ValueError("Terms must be explicitly accepted"),
+    )
+    def test_register_when_accepted_terms_is_false_returns_bad_request(self, _register_user_mock):
+        response = self.client.post(
+            "/api/auth/register",
+            json={
+                "email": "user@example.com",
+                "password": "secret123",
+                "firstName": "Ada",
+                "lastName": "Lovelace",
+                "terms_id": 1,
+                "terms_version": "v1",
+                "accepted_terms": False,
+            },
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.get_json()["error"],
+            "Terms must be explicitly accepted",
+        )
+
+    @patch(
+        "app.api.auth.register_user",
+        side_effect=TermsVersionMismatchException(
+            "The provided terms_id does not match the latest published terms."
+        ),
+    )
+    def test_register_when_terms_id_is_not_latest_returns_conflict(self, _register_user_mock):
+        response = self.client.post(
+            "/api/auth/register",
+            json={
+                "email": "user@example.com",
+                "password": "secret123",
+                "firstName": "Ada",
+                "lastName": "Lovelace",
+                "terms_id": 1,
+                "terms_version": "v1",
+                "accepted_terms": True,
+            },
+        )
+
+        self.assertEqual(response.status_code, 409)
+        self.assertEqual(
+            response.get_json()["error"],
+            "The provided terms_id does not match the latest published terms.",
+        )
+
+    @patch(
+        "app.api.auth.register_user",
+        side_effect=TermsVersionMismatchException(
+            "The provided terms_version does not match the latest published terms."
+        ),
+    )
+    def test_register_when_terms_version_is_not_latest_returns_conflict(self, _register_user_mock):
+        response = self.client.post(
+            "/api/auth/register",
+            json={
+                "email": "user@example.com",
+                "password": "secret123",
+                "firstName": "Ada",
+                "lastName": "Lovelace",
+                "terms_id": 2,
+                "terms_version": "v0",
+                "accepted_terms": True,
+            },
+        )
+
+        self.assertEqual(response.status_code, 409)
+        self.assertEqual(
+            response.get_json()["error"],
+            "The provided terms_version does not match the latest published terms.",
+        )
+
+    @patch(
+        "app.api.auth.register_user",
+        side_effect=TermsAndConditionsNotFoundException("No terms and conditions available"),
+    )
+    def test_register_when_no_terms_are_available_returns_conflict(self, _register_user_mock):
+        response = self.client.post(
+            "/api/auth/register",
+            json={
+                "email": "user@example.com",
+                "password": "secret123",
+                "firstName": "Ada",
+                "lastName": "Lovelace",
+                "terms_id": 1,
+                "terms_version": "v1",
+                "accepted_terms": True,
+            },
+        )
+
+        self.assertEqual(response.status_code, 409)
+        self.assertEqual(
+            response.get_json()["error"],
+            "No terms and conditions available",
+        )
 
     @patch("app.api.auth.request_password_reset", side_effect=AuthUserNotFoundException("User not found"))
     def test_forgot_password_when_user_is_missing_returns_not_found(self, _request_password_reset_mock):

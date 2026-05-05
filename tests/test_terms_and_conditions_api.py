@@ -8,6 +8,7 @@ from app.api.terms_and_conditions_api import terms_and_conditions_api__bp
 from app.extensions import jwt
 from app.services.terms_and_conditions_service import (
     TermsAndConditionsNotFoundException,
+    TermsVersionMismatchException,
     TermsUserNotFoundException,
 )
 
@@ -40,18 +41,31 @@ class TermsAndConditionsApiTests(unittest.TestCase):
         )()
 
         response = self.client.put(
-            "/api/users/ignored@example.com/accept-terms",
+            "/api/terms/accept",
+            json={"terms_id": 2},
             headers=self.auth_headers,
         )
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.get_json()["user"], "terms-user@example.com")
-        accept_terms_mock.assert_called_once_with("terms-user@example.com")
+        accept_terms_mock.assert_called_once_with("terms-user@example.com", 2)
 
     def test_accept_terms_when_request_is_unauthenticated_returns_unauthorized(self):
-        response = self.client.put("/api/users/missing@example.com/accept-terms")
+        response = self.client.put(
+            "/api/terms/accept",
+            json={"terms_id": 2},
+        )
 
         self.assertEqual(response.status_code, 401)
+
+    def test_accept_terms_when_terms_id_is_missing_returns_bad_request(self):
+        response = self.client.put(
+            "/api/terms/accept",
+            headers=self.auth_headers,
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.get_json()["message"], "Missing required field: terms_id")
 
     @patch(
         "app.api.terms_and_conditions_api.TermsAndConditionsService.accept_terms",
@@ -59,7 +73,8 @@ class TermsAndConditionsApiTests(unittest.TestCase):
     )
     def test_accept_terms_when_user_is_missing_returns_not_found(self, _accept_terms_mock):
         response = self.client.put(
-            "/api/users/missing@example.com/accept-terms",
+            "/api/terms/accept",
+            json={"terms_id": 2},
             headers=self.auth_headers,
         )
 
@@ -72,9 +87,29 @@ class TermsAndConditionsApiTests(unittest.TestCase):
     )
     def test_accept_terms_when_terms_are_missing_returns_conflict(self, _accept_terms_mock):
         response = self.client.put(
-            "/api/users/terms-user@example.com/accept-terms",
+            "/api/terms/accept",
+            json={"terms_id": 2},
             headers=self.auth_headers,
         )
 
         self.assertEqual(response.status_code, 409)
         self.assertEqual(response.get_json()["message"], "No terms available.")
+
+    @patch(
+        "app.api.terms_and_conditions_api.TermsAndConditionsService.accept_terms",
+        side_effect=TermsVersionMismatchException(
+            "The provided terms_id does not match the latest published terms."
+        ),
+    )
+    def test_accept_terms_when_terms_id_is_not_latest_returns_conflict(self, _accept_terms_mock):
+        response = self.client.put(
+            "/api/terms/accept",
+            json={"terms_id": 1},
+            headers=self.auth_headers,
+        )
+
+        self.assertEqual(response.status_code, 409)
+        self.assertEqual(
+            response.get_json()["message"],
+            "The provided terms_id does not match the latest published terms.",
+        )
