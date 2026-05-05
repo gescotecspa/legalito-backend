@@ -106,6 +106,10 @@ Tablero simple para seguir trabajo activo del backend sin depender de notas exte
 - validar manualmente recuperacion de contraseña usando SMTP propio en QA
 - completar documentacion faltante del dominio `events`
 - reforzar ownership de `GET /api/events/<id>` para que respete usuario autenticado
+- ajustar aceptacion de terminos para usuarios existentes via `PUT /api/terms/accept`
+- validar `GET /api/terms` para exponer version vigente al frontend
+- exigir `terms_id`, `terms_version` y `accepted_terms` en `register`
+- mejorar seed inicial de `terms_and_conditions` para QA/dev
 
 ## Notas
 
@@ -142,6 +146,10 @@ Tablero simple para seguir trabajo activo del backend sin depender de notas exte
 - creacion de usuario desde la app validada
 - recuperacion de contraseña por SMTP validada
 - autenticacion/login validado con credenciales reales
+- validacion manual de terminos el 2026-05-04:
+- `GET /api/terms` probado y validado para obtener version vigente
+- `register` probado y validado con `terms_id`, `terms_version` y `accepted_terms=true`
+- seed inicial de `terms_and_conditions` mejorado para dejar contenido base mas realista en QA/dev
 - pendientes de homologacion mas visibles hoy:
 - `mails/events` siguen pendientes de validacion manual real
 - vacios documentales visibles hoy:
