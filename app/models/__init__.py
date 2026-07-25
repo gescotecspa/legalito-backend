@@ -1,5 +1,6 @@
 from .assistant import Assistant
 from .case import Case
+from .client import Client
 from .courthouse import Courthouse
 from .email_account import EmailAccount
 from .folio import Folio
@@ -12,3 +13,4 @@ from .event import Event
 from .case_user import CaseUser
 from .status import Status
 from .terms_and_conditions import TermsAndConditions
+from .task import Task

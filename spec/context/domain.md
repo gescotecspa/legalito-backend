@@ -2,7 +2,15 @@
 
 ## Resumen
 
-Este backend expone una API Flask para operaciones de autenticacion, administracion de usuarios y entidades de apoyo a la gestion juridica.
+Este backend expone una API Flask para Legalito, una plataforma pensada como CRM legal para apoyar la gestion de clientes, causas, agenda, documentos, comunicaciones y conocimiento juridico.
+
+La vision de producto contempla experiencias cliente movil y web app. Por lo mismo, los contratos del backend deben tratarse como base compartida de plataforma, no como integracion exclusiva de una unica interfaz.
+
+## Direccion futura de IA
+
+Legalito incorporara progresivamente capacidades de inteligencia artificial como colaborador de trabajo juridico, especialmente para apoyo en jurisprudencia, analisis preliminar de casos, revision de antecedentes y asistencia en documentos.
+
+Estas capacidades quedan por ahora como direccion de producto. Antes de implementarlas deben definirse specs, contratos API, reglas de confidencialidad, consentimiento informado, revision humana y auditoria.
 
 ## Capacidades detectadas en el repo
 
@@ -20,6 +28,7 @@ Este backend expone una API Flask para operaciones de autenticacion, administrac
 - creacion y envio de eventos con adjunto `.ics`
 - administracion de terminos y condiciones
 - carga de imagenes
+- colaboracion futura con IA para jurisprudencia, analisis de casos y apoyo documental, pendiente de especificacion formal
 
 ## Actores principales
 

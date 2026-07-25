@@ -7,6 +7,7 @@ from flask_jwt_extended import create_access_token
 from app.api.cases import case_bp
 from app.extensions import jwt
 from app.services.case_service import CaseNotFoundException
+from app.models import Case
 
 
 class CasesApiTests(unittest.TestCase):
@@ -58,3 +59,14 @@ class CasesApiTests(unittest.TestCase):
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.get_json()["error"], "Case with id 7 not found.")
 
+    @patch("app.api.cases.get_case_by_user_service")
+    def test_get_case_when_jwt_is_present_uses_authenticated_user(self, get_case_mock):
+        case = Case(rit="RIT-001", name="Caso principal", status="active")
+        case.id = 4
+        get_case_mock.return_value = case
+
+        response = self.client.get("/api/cases/4", headers=self.auth_headers)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json()["rit"], "RIT-001")
+        get_case_mock.assert_called_once_with(4, "cases-user@example.com")

@@ -8,6 +8,8 @@ Los casos de uso deben agruparse por dominio funcional. Ejemplos:
 
 - `auth/`
 - `users/`
+- `clients/`
+- `tasks/`
 - `notifications/`
 - `events/`
 

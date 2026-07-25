@@ -4,8 +4,10 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 from app.services.case_service import (
     CaseAlreadyExistsException,
     CaseNotFoundException,
+    CaseOwnershipException,
     create_case,
     delete_case_service,
+    get_case_by_user_service,
     list_cases_by_user_service,
     list_cases_service,
 )
@@ -54,7 +56,17 @@ def update():
 @case_bp.route('/cases/<int:id>', methods=['GET'])
 @jwt_required()
 def get(id):
-    abort(501)
+    current_user = get_jwt_identity()
+
+    try:
+        case = get_case_by_user_service(id, current_user)
+        return jsonify(case.serialize()), 200
+    except CaseOwnershipException as e:
+        return jsonify({"error": str(e)}), 404
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
 @case_bp.route('/cases/byUser', methods=['POST'])
 @jwt_required()

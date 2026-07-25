@@ -7,9 +7,12 @@ import app.models  # noqa: F401
 from app.extensions import jwt
 from app.models.case import Case
 from app.models.case_user import CaseUser
+from app.models.client import Client
 from app.services.case_service import (
     CaseNotFoundException,
+    CaseOwnershipException,
     delete_case_service,
+    get_case_by_user_service,
     list_cases_by_user_service,
 )
 
@@ -32,7 +35,16 @@ class CaseServiceTests(unittest.TestCase):
         self.ctx.push()
         db.create_all()
 
-        self.case = Case(rit="RIT-001", name="Caso principal", status="active")
+        self.client_record = Client(owner_user="owner@example.com", name="Cliente Uno")
+        db.session.add(self.client_record)
+        db.session.commit()
+
+        self.case = Case(
+            rit="RIT-001",
+            name="Caso principal",
+            status="active",
+            client_id=self.client_record.id,
+        )
         self.other_case = Case(rit="RIT-002", name="Caso secundario", status="active")
         db.session.add_all([self.case, self.other_case])
         db.session.commit()
@@ -60,3 +72,12 @@ class CaseServiceTests(unittest.TestCase):
         with self.assertRaises(CaseNotFoundException):
             delete_case_service(999)
 
+    def test_get_case_by_user_service_returns_owned_case_with_client(self):
+        result = get_case_by_user_service(self.case.id, "owner@example.com")
+
+        self.assertEqual(result.rit, "RIT-001")
+        self.assertEqual(result.client.name, "Cliente Uno")
+
+    def test_get_case_by_user_service_when_case_is_not_owned_raises_ownership(self):
+        with self.assertRaises(CaseOwnershipException):
+            get_case_by_user_service(self.other_case.id, "owner@example.com")

@@ -12,6 +12,10 @@ class CaseNotFoundException(Exception):
     pass
 
 
+class CaseOwnershipException(Exception):
+    pass
+
+
 def create_case(data):
     rit = data.get('rit')
     name = data.get('name')
@@ -62,3 +66,22 @@ def list_cases_by_user_service(user):
         .all()
     )
     return result
+
+
+def get_case_by_user_service(case_id, user):
+    if not user:
+        raise ValueError("User parameter is required.")
+
+    case = (
+        db.session.query(Case)
+        .join(CaseUser, Case.id == CaseUser.case_id)
+        .filter(Case.id == case_id, CaseUser.user == user)
+        .first()
+    )
+
+    if not case:
+        raise CaseOwnershipException(
+            f"Case with id {case_id} not found for authenticated user."
+        )
+
+    return case

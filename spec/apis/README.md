@@ -9,6 +9,8 @@ Los specs deben agruparse por dominio funcional. Ejemplos:
 - `auth/`
 - `users/`
 - `cases/`
+- `clients/`
+- `tasks/`
 - `mails/`
 - `events/`
 
