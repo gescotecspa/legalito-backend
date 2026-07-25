@@ -12,6 +12,7 @@ Los casos de uso deben agruparse por dominio funcional. Ejemplos:
 - `tasks/`
 - `notifications/`
 - `events/`
+- `web_app/`
 
 ## Cuando agregar un use case
 

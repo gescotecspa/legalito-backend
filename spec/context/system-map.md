@@ -117,6 +117,24 @@ Este criterio queda formalizado en [ADR-001-separacion-de-capas-y-bootstrap-expl
 - objetivo tecnico: servir uploads de usuario con control de path traversal
 - contratos documentados: `spec/apis/image/`
 
+## Clientes de plataforma detectados
+
+### Mobile App
+
+- repo: `/Users/marcosceliz/Projects/Gescotec/legalito/legalito-app`
+- stack: Expo / React Native
+- foco: consulta rapida, notificaciones, causas resumidas y tareas simples
+- API: `https://api.legalito.cl/api`
+
+### Web App
+
+- repo: `/Users/marcosceliz/Projects/Gescotec/legalito/legalito-web`
+- stack: React / Vite / TypeScript
+- foco: workspace CRM legal de escritorio
+- modulos v1: login, dashboard, causas, ficha extendida inicial, clientes, tareas, notificaciones y placeholders de documentos, IA y configuracion
+- decision tecnica: `ADR-003-frontend-web-react-vite-repo-separado`
+- API: `https://api.legalito.cl/api`
+
 ## Integraciones transversales detectadas
 
 - base de datos relacional via SQLAlchemy

@@ -17,7 +17,7 @@ Tablero simple para seguir trabajo activo del backend sin depender de notas exte
 - cerrar gaps pendientes del dominio `cases`:
 - definir si `GET /cases/list` se implementa o se descarta formalmente
 - agregar specs y pruebas de `GET /cases/list` si se mantiene
-- documentar decision sobre `PUT /cases` y `GET /cases/<id>` que hoy siguen no implementados
+- documentar decision sobre `PUT /cases`, que hoy sigue no implementado
 - completar casos de uso faltantes del dominio `cases`:
 - crear causa
 - eliminar causa
@@ -110,6 +110,11 @@ Tablero simple para seguir trabajo activo del backend sin depender de notas exte
 - validar `GET /api/terms` para exponer version vigente al frontend
 - exigir `terms_id`, `terms_version` y `accepted_terms` en `register`
 - mejorar seed inicial de `terms_and_conditions` para QA/dev
+- publicar backend con clientes, tareas y detalle de causa con ownership
+- crear `legalito-web` como repo separado React/Vite
+- implementar primera version web CRM workspace
+- validar `legalito-web` con lint, typecheck, build y auditoria de produccion sin vulnerabilidades
+- documentar estrategia multicanal mobile/web con ADR
 
 ## Notas
 
@@ -117,10 +122,10 @@ Tablero simple para seguir trabajo activo del backend sin depender de notas exte
 - este tablero no reemplaza specs; solo ayuda a recordar y priorizar
 - estado de referencia actual:
 - `flask --app run.py recreate-db --yes` ejecutado con exito sobre `legalito_db`
-- Alembic queda en revision `1b52f91b47e5`
+- Alembic publicado queda en revision `6d0e8af37c21`
 - `statuses` queda seeded con `active`, `suspended` y `deleted`
 - `terms_and_conditions` queda seeded con version minima `v1`
-- pruebas automatizadas totales actuales: 108 tests verdes con `python -m unittest discover -s tests -p 'test_*.py' -v`
+- pruebas automatizadas backend actuales: 157 tests verdes con `venv/bin/python -m unittest discover tests`
 - controles de seguridad ya aplicados:
 - JWT obligatorio en endpoints sensibles
 - `EmailAccount` ya no expone `password`
