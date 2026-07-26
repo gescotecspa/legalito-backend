@@ -41,6 +41,14 @@ VITE_LEGALITO_API_URL=https://api.legalito.cl/api
 
 La autenticacion inicial usa login contra backend y conserva la sesion en `localStorage` para este primer corte.
 
+El primer despliegue publico queda publicado como SPA estatica en:
+
+```txt
+https://legalito.cl
+```
+
+El deploy operativo usa build local de Vite y subida de `dist/` al VPS `200.45.208.138`, ruta `/var/www/legalito-web`, servido por Nginx. El dominio se administra desde Donweb/Hostmar solo a nivel DNS y apunta al VPS mediante registro `A`; el backend se mantiene separado en `https://api.legalito.cl/api`.
+
 ## Diagrama Mermaid opcional
 
 ```mermaid

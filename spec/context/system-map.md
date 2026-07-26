@@ -131,6 +131,8 @@ Este criterio queda formalizado en [ADR-001-separacion-de-capas-y-bootstrap-expl
 - repo: `/Users/marcosceliz/Projects/Gescotec/legalito/legalito-web`
 - stack: React / Vite / TypeScript
 - foco: workspace CRM legal de escritorio
+- URL publica: `https://legalito.cl`
+- deploy: build estatico en `/var/www/legalito-web`, servido por Nginx en el VPS `200.45.208.138`
 - modulos v1: login, dashboard, causas, ficha extendida inicial, clientes, tareas, notificaciones y placeholders de documentos, IA y configuracion
 - decision tecnica: `ADR-003-frontend-web-react-vite-repo-separado`
 - API: `https://api.legalito.cl/api`

@@ -2,7 +2,7 @@
 
 ## Estado
 
-Implementado parcialmente
+Implementado y publicado
 
 ## Objetivo
 
@@ -119,8 +119,20 @@ flowchart TD
 
 - repo: `/Users/marcosceliz/Projects/Gescotec/legalito/legalito-web`
 - stack: React, Vite, TypeScript, ESLint, CSS propio
+- URL publica: `https://legalito.cl`
+- ruta VPS: `/var/www/legalito-web`
+- mecanismo de publicacion: build local `dist` y subida por `rsync`
 - API configurada: `VITE_LEGALITO_API_URL=https://api.legalito.cl/api`
 - commit inicial: `b079f5d Initial Legalito web workspace`
+- corte publicado: `2026-07-26`
+- backend CORS habilitado para `https://legalito.cl` y `https://www.legalito.cl`
+- DNS actualizado para que `legalito.cl` apunte al VPS `200.45.208.138`
+- HTTPS activo con Certbot/Nginx
+- login web validado contra API publica
+- workspace validado con dashboard, causas, clientes, tareas y notificaciones
+- ajustes de compatibilidad realizados:
+- `notifications` consume `/api/notifications/byUser`
+- se elimina dependencia de `/api/auth/check-status`, endpoint no disponible en el backend actual
 - validaciones ejecutadas:
 - `npm run lint`
 - `npm run typecheck`

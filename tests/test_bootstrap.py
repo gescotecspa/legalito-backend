@@ -45,6 +45,75 @@ class AppFactoryTests(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             create_app()
 
+    @patch.dict(
+        os.environ,
+        {
+            "DATABASE_URL": "sqlite:///:memory:",
+            "SECRET_KEY": "test-secret",
+            "JWT_SECRET_KEY": "jwt-test-secret",
+            "CORS_ALLOWED_ORIGINS": "https://legalito.cl,https://www.legalito.cl",
+        },
+        clear=False,
+    )
+    @patch("app.cli.initialize_statuses")
+    @patch("app.cli.initialize_terms_and_conditions")
+    def test_create_app_adds_cors_headers_for_allowed_web_origin(
+        self,
+        _initialize_terms_mock,
+        _initialize_statuses_mock,
+    ):
+        from app import create_app
+
+        app = create_app()
+        client = app.test_client()
+
+        response = client.open(
+            "/api/auth/login",
+            method="OPTIONS",
+            headers={
+                "Origin": "https://legalito.cl",
+                "Access-Control-Request-Method": "POST",
+                "Access-Control-Request-Headers": "content-type",
+            },
+        )
+
+        self.assertEqual(response.headers["Access-Control-Allow-Origin"], "https://legalito.cl")
+        self.assertIn("POST", response.headers["Access-Control-Allow-Methods"])
+        self.assertIn("Content-Type", response.headers["Access-Control-Allow-Headers"])
+
+    @patch.dict(
+        os.environ,
+        {
+            "DATABASE_URL": "sqlite:///:memory:",
+            "SECRET_KEY": "test-secret",
+            "JWT_SECRET_KEY": "jwt-test-secret",
+            "CORS_ALLOWED_ORIGINS": "https://legalito.cl",
+        },
+        clear=False,
+    )
+    @patch("app.cli.initialize_statuses")
+    @patch("app.cli.initialize_terms_and_conditions")
+    def test_create_app_does_not_add_cors_headers_for_unknown_origin(
+        self,
+        _initialize_terms_mock,
+        _initialize_statuses_mock,
+    ):
+        from app import create_app
+
+        app = create_app()
+        client = app.test_client()
+
+        response = client.open(
+            "/api/auth/login",
+            method="OPTIONS",
+            headers={
+                "Origin": "https://example.com",
+                "Access-Control-Request-Method": "POST",
+            },
+        )
+
+        self.assertNotIn("Access-Control-Allow-Origin", response.headers)
+
 
 class CliCommandTests(unittest.TestCase):
     @patch.dict(

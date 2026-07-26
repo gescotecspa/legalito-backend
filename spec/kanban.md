@@ -115,6 +115,9 @@ Tablero simple para seguir trabajo activo del backend sin depender de notas exte
 - implementar primera version web CRM workspace
 - validar `legalito-web` con lint, typecheck, build y auditoria de produccion sin vulnerabilidades
 - documentar estrategia multicanal mobile/web con ADR
+- publicar `legalito-web` en `https://legalito.cl` usando build estatico en VPS
+- ajustar CORS del backend para permitir `https://legalito.cl` y `https://www.legalito.cl`
+- alinear web con contratos backend reales para `notifications/byUser` y sesion sin `check-status`
 
 ## Notas
 
@@ -173,3 +176,9 @@ Tablero simple para seguir trabajo activo del backend sin depender de notas exte
 - `EMAIL_DELIVERY_METHOD=local` ya soporta recuperacion de contraseña via SMTP autenticado
 - QA ya fue validado con `EMAIL_DELIVERY_METHOD=local` y credenciales SMTP propias
 - `EMAIL_DELIVERY_METHOD=api` mantiene compatibilidad con la integracion actual basada en Mailjet
+- validacion manual web en produccion el 2026-07-26:
+- `legalito.cl` apunta al VPS `200.45.208.138`
+- `legalito.cl` queda publicado por HTTPS con Nginx/Certbot
+- login web validado contra `https://api.legalito.cl/api`
+- CORS de API validado con `Origin: https://legalito.cl`
+- dashboard carga contratos reales de causas, clientes, tareas y notificaciones
